@@ -1,47 +1,49 @@
 package util
 
-//import java.util.logging.{ Level, Logger, ConsoleHandler}
+import scala.collection.mutable.ArrayBuffer
+
 
 /**
- * Created by Kathi on 01.02.2015.
+ * Created by Peter on 01.02.2015.
  */
 
 object Log {
 
-   /*lazy val logger={
-     System.setProperty( "java.util.logging.SimpleFormatter.format","%4$s: %5$s %6$s\n")
-     val res= Logger.getLogger("DB")
-     res.setLevel(Level.INFO)
-     val consoleHandler=new ConsoleHandler(){
-       setOutputStream(System.out)
-     }
-     res.addHandler(consoleHandler)
-     res
-   }*/
+  type LogListener=(String)=>Unit
 
-   def w(st:String)={
-     val elem=Thread.currentThread().getStackTrace()(2)
-     println(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st)
-   }
+  protected val logListeners: ArrayBuffer[LogListener] =ArrayBuffer[LogListener]()
 
-  def e(st:String)={
+  def addLogListener(l:LogListener):Unit= logListeners+=l
+
+  protected def notifyLogListeners(st:String):Unit= {
+    for (l<-logListeners) l(st)
+    println(st)
+  }
+
+
+  def w(st:String): Unit ={
     val elem=Thread.currentThread().getStackTrace()(2)
     println(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st)
   }
 
-  def e(t:Throwable)={
+  def e(st:String): Unit ={
     val elem=Thread.currentThread().getStackTrace()(2)
-    println(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+t++"\n"+t.getStackTrace.mkString("\n   "))
+    notifyLogListeners(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st)
   }
 
-  def e(st:String,t:Throwable)={
+  def e(t:Throwable): Unit ={
     val elem=Thread.currentThread().getStackTrace()(2)
-    println(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st+" "+t+"\n"+t.getStackTrace.mkString("\n   "))
+    notifyLogListeners(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+t++"\n"+t.getStackTrace.mkString("\n   "))
   }
 
-  def e(st:String,ar:Array[StackTraceElement])={
+  def e(st:String,t:Throwable): Unit ={
+    val elem=Thread.currentThread().getStackTrace()(2)
+    notifyLogListeners(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st+" "+t+"\n"+t.getStackTrace.mkString("\n   "))
+  }
+
+  def e(st:String,ar:Array[StackTraceElement]): Unit ={
     val elem=ar(0)
-    println(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st+"\n "+ar.mkString("\n  "))
+    notifyLogListeners(elem.getClassName+" "+elem.getMethodName+" "+elem.getFileName+"("+elem.getLineNumber+"): "+st+"\n "+ar.mkString("\n  "))
   }
 }
 
