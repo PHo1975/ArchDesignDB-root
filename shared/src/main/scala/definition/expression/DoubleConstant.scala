@@ -1,60 +1,60 @@
 /**
- * Author: Peter Started:18.07.2010
- */
+  * Author: Peter Started:18.07.2010
+  */
 package definition.expression
 
+import java.io.DataOutput
 import definition.typ.DataType
-import java.io.{DataOutput}
 
 /**
- * 
- */
-case class DoubleConstant(n:Double) extends Constant {
-  
-  def getType: DataType.Value =  DataType.DoubleTyp 
+  *
+  */
+case class DoubleConstant(n: Double) extends Constant {
 
-  def createCopy(): Expression = { new DoubleConstant(n) }
+  def getType: DataType.Value = DataType.DoubleTyp
 
-  def getTerm =   toString
-  
-  override def toString=String.valueOf(n)  
+  def getTerm: String = toString
 
-  def toInt =  n.round.toInt
-  
-  def toLong =  n.round
-  
-  def toDouble = n
-  
-  def toBoolean= n>0
-  
-  def write(file:DataOutput)= { 
-  	file.writeByte(DataType.DoubleTyp.id)
-  	//System.out.println("DoubleID:" +DataType.DoubleTyp.id)
-  	file.writeDouble(n)
+  override def toString: String = String.valueOf(n)
+
+  def toInt: Int = n.round.toInt
+
+  def toLong: Long = n.round
+
+  def toDouble: Double = n
+
+  def toBoolean: Boolean = n > 0
+
+  def write(file: DataOutput): Unit = {
+    file.writeByte(DataType.DoubleTyp.id)
+    file.writeDouble(n)
   }
-  
-  def getNative= n
-  
-  override def isNumberConstant=true
-  
-  def encode="$G"+n.toString()
+
+  def getNative: Double = n
+
+  override def isNumberConstant = true
+
+  def encode: String = "$G" + n.toString
+
+  override def containsString(st: String, checkNumbers: Boolean): Boolean = checkNumbers && toString.contains(st)
 }
 
+
 object DoubleConstant {
+  val allowedChars: Array[Char] = Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-')
+
   //val format=new java.text.DecimalFormat("0.0########")
-  def decode(text:String)= {
-    val end=findEnd(text,2)
-	(new DoubleConstant(text.substring(2,end).toDouble),end)
+  def decode(text: String): (DoubleConstant, Int) = {
+    val end = findEnd(text, 2)
+    (new DoubleConstant(text.substring(2, end).toDouble), end)
   }
-  
-  val allowedChars:Array[Char]=Array('0','1','2','3','4','5','6','7','8','9','.','-')
-	
-	def findEnd(text:String,startPos:Int)= {
-	  var pos=startPos
-	  while(pos<text.length && allowedChars.contains( text.charAt(pos)))
-	    pos+=1
-	  pos
-	}
+
+  def findEnd(text: String, startPos: Int): Int = {
+    var pos = startPos
+    while (pos < text.length && allowedChars.contains(text.charAt(pos)))
+      pos += 1
+    pos
+  }
 }
 
 

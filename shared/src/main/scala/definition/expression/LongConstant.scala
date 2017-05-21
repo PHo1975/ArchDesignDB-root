@@ -1,46 +1,40 @@
 /**
- * Author: Peter Started:05.09.2010
- */
+  * Author: Peter Started:05.09.2010
+  */
 package definition.expression
 
+import java.io.DataOutput
 import definition.typ.DataType
-import java.io.{DataInput,DataOutput}
+
 /**
- * 
- */
-case class LongConstant(n:Long) extends Constant {
+  *
+  */
+case class LongConstant(n: Long) extends Constant {
 
-  def getType: DataType.Value =  DataType.LongTyp 
+  def getType: DataType.Value = DataType.LongTyp
 
-  def createCopy(): Expression = { new LongConstant(n) }
+  def getTerm: String = String.valueOf(n)
 
-  def getTerm =  String.valueOf(n) 
-  
-  override def toString=String.valueOf(n)
-  
-  /*override def equals(other: Any)= other match{ 
-                                                case that:IntConstant=> n==that.n
-                                                case _ => false}
-  
-  def canEqual(other: Any)=other.isInstanceOf[IntConstant]
+  def toInt: Int = n.toInt
 
-  override def hashCode = n.hashCode*/
-  
-  def toInt =  n.toInt
-  
-  def toDouble = n.toDouble
-  
-  def toLong = n
-  
-  def toBoolean= n>0
-  
-  def write(file:DataOutput)= { 
-  	file.writeByte(DataType.LongTyp.id)
-  	file.writeLong(n)
+  def toDouble: Double = n.toDouble
+
+  def toLong: Long = n
+
+  def toBoolean: Boolean = n > 0
+
+  def write(file: DataOutput): Unit = {
+    file.writeByte(DataType.LongTyp.id)
+    file.writeLong(n)
   }
-  def getNative=n
-  
-  override def isNumberConstant=true
-  
-  def encode="$L"+n
+
+  def getNative: Long = n
+
+  override def isNumberConstant = true
+
+  def encode: String = "$L" + n
+
+  override def containsString(st: String, checkNumbers: Boolean): Boolean = checkNumbers && toString.contains(st)
+
+  override def toString: String = String.valueOf(n)
 }
