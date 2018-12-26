@@ -4,12 +4,14 @@
 package definition.typ
 
 import java.io.DataOutput
-import definition.expression.{ EMPTY_EX, Expression }
+
+import definition.expression.{EMPTY_EX, Expression}
 import definition.typ.form.AbstractFormBox
 import util.CollUtils
+
 import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{ immutable, mutable }
+import scala.collection.{immutable, mutable}
 
 
 /**

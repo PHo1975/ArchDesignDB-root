@@ -1,7 +1,9 @@
 package definition.data
 
-import java.awt.{ BasicStroke, Color }
+import java.awt.{BasicStroke, Color}
+
 import util.StringUtils
+
 import scala.collection.mutable
 
 class LineStyle(val ix: Int, val name: String, val dots: Array[Float]) {

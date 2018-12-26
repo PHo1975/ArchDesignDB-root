@@ -4,7 +4,11 @@
 package definition.expression
 
 import java.io.DataOutput
+
 import definition.typ.DataType
+import util.Log
+
+import scala.util.control.NonFatal
 
 /**
   *
@@ -14,6 +18,12 @@ case class LongConstant(n: Long) extends Constant {
   def getType: DataType.Value = DataType.LongTyp
 
   def getTerm: String = String.valueOf(n)
+
+  override def getReadableTerm(format:String):String= try {
+    format.format(n)
+  } catch {
+    case NonFatal(e)=> Log.e("format:"+format+" value:"+n+" error:"+e);getTerm
+  }
 
   def toInt: Int = n.toInt
 

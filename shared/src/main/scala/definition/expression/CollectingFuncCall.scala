@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 /** a Function call that collects data from all child objects
@@ -29,6 +30,10 @@ case class CollectingFuncCall(name: String, propertyField: Byte, childType: Int,
   def getChildNr(ix: Int): Expression = null
 
   def getTerm: String = "#" + name + "( " + propertyField + ";" + childType + ";" + childField + " ) "
+
+  override def getReadableTerm: String = getValue.getReadableTerm
+
+  override def getReadableTerm(format:String): String = getValue.getReadableTerm(format)
 
   def isConstant: Boolean = false
 

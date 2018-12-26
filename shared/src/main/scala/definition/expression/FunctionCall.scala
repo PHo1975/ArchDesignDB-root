@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 
@@ -32,6 +33,16 @@ case class FunctionCall(module: Option[String], name: String, params: List[Expre
       case _ => ""
     }) + name + "( " + params.map(_.getTerm).mkString("; ") + " ) "
 
+  override def getReadableTerm: String = (module match {
+    case Some(mod) => mod + "."
+    case _ => ""
+  }) + name + "( " + params.map(_.getReadableTerm).mkString("; ") + " ) "
+
+  override def getReadableTerm(format:String): String = (module match {
+    case Some(mod) => mod + "."
+    case _ => ""
+  }) + name + "( " + params.map(_.getReadableTerm(format)).mkString("; ") + " ) "
+
 
   def isConstant: Boolean = {false}
 
@@ -52,7 +63,7 @@ case class FunctionCall(module: Option[String], name: String, params: List[Expre
     result
   }
 
-  override def replaceExpression(checker: (Expression) => Expression): Expression = {
+  override def replaceExpression(checker: Expression => Expression): Expression = {
     val newMe = checker(this)
     if (newMe == this) new FunctionCall(module, name, for (p <- params)
       yield p.replaceExpression(checker))

@@ -4,12 +4,14 @@
 package definition.typ.form
 
 import java.awt.Color
+
 import definition.data.InstanceData
-import definition.expression.{ Expression, ParserResult }
+import definition.expression.{Expression, ParserResult}
 import definition.typ.AbstractObjectClass
+
 import scala.language.implicitConversions
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.{ Attribute, MetaData, Null, Text }
+import scala.xml.{Attribute, MetaData, Null, Text}
 
 
 /** Super class of all screen form elements
@@ -17,7 +19,7 @@ import scala.xml.{ Attribute, MetaData, Null, Text }
   */
 trait AbstractFormElement {
 
-  type InitFunc = (AbstractFormElement) => Unit
+  type InitFunc = AbstractFormElement => Unit
 
   def minWidth: Int
 

@@ -1,10 +1,12 @@
 package definition.expression
 
-import java.awt.geom.Path2D.{ Double ⇒ Path2dDouble }
+import java.awt.geom.Path2D.{Double => Path2dDouble}
 import java.awt.geom._
-import java.io.{ DataInput, DataOutput }
-import definition.data.{ Referencable, Reference }
+import java.io.{DataInput, DataOutput}
+
+import definition.data.{Referencable, Reference}
 import definition.typ.DataType
+
 import scala.Array.fallbackCanBuildFrom
 
 
@@ -163,7 +165,7 @@ case class PointList(points: Seq[VectorConstant]) {
 
   def translatePoints(hitPoints: Set[VectorConstant], delta: VectorConstant) = PointList(points.map(p => if (hitPoints.contains(p)) p + delta else p))
 
-  def transform(trans: (VectorConstant) => VectorConstant) = PointList(points.map(trans))
+  def transform(trans: VectorConstant => VectorConstant) = PointList(points.map(trans))
 
   def pointsOutsideFromEdge(edge: Edge): Boolean = {
     points.exists(edge.pointLocation2D(_) > 0)
@@ -217,6 +219,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
   lazy val maxX: Double = if (pathList.isEmpty) Double.MinValue else pathList.reduceLeft((a, b) => if (a.maxX > b.maxX) a else b).maxX
   lazy val maxY: Double = if (pathList.isEmpty) Double.MinValue else pathList.reduceLeft((a, b) => if (a.maxY > b.maxY) a else b).maxY
   lazy val getAreaValue: Double = -1d * pathList.foldLeft(0d)((sum, value) => {sum + value.getArea})
+  lazy val getUmfangValue:Double = pathList.foldLeft(0d)((sum,value)=>{sum+value.getUmfang})
   lazy val path: Path2dDouble = toPath
   lazy val area = new Area(path)
   private lazy val testPoint = new Point2D.Double
@@ -235,7 +238,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
 
   override def toString: String = getTerm
 
-  import Polygon.{ areaTreshold, contTreshold, treshold }
+  import Polygon.{areaTreshold, contTreshold, treshold}
 
   //def createCopy(): Expression = { new Polygon(parents,pathList) }
   def getTerm: String = "Pa[" + pathList.mkString("|") + "]"
@@ -257,7 +260,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pa
   }
 
-  def toPathTransformed(trans: (VectorConstant) => VectorConstant): Path2D.Double = {
+  def toPathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
     val pa = new Path2D.Double
     if (pathList.nonEmpty) {
       for (pList <- pathList; if pList.points.size > 2) {
@@ -271,7 +274,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pa
   }
 
-  def toLinePathTransformed(trans: (VectorConstant) => VectorConstant): Path2D.Double = {
+  def toLinePathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
     val pa = new Path2D.Double
     for (lh <- pathList.headOption; ph <- lh.points.headOption; fp = trans(ph)) {
       pa.moveTo(fp.x, fp.y)
@@ -281,7 +284,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pa
   }
 
-  def transform(trans: (VectorConstant) => VectorConstant) = new Polygon(parents, pathList.map(_.transform(trans)))
+  def transform(trans: VectorConstant => VectorConstant) = new Polygon(parents, pathList.map(_.transform(trans)))
 
   /** finds the minimal and maximal distances to the point (0,0) of this polygon
     *
@@ -305,9 +308,9 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     file.writeByte(DataType.PolygonTyp.id)
     file.writeInt(parents.size)
     parents.foreach(_.ref.write(file))
-    val numPaths = pathList.foldLeft(0)((n, path) => if (path.points.size > 2) n + 1 else n)
+    val numPaths = pathList.foldLeft(0)((n, path) => if (path.points.size > 1) n + 1 else n)
     file.writeInt(numPaths)
-    pathList.filter(_.points.size > 2).foreach(_.write(file))
+    pathList.filter(_.points.size > 1).foreach(_.write(file))
   }
 
   def encode: String = "$A[" + pathList.map(_.encode()).mkString("|") + "]"

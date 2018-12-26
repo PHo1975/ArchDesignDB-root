@@ -3,11 +3,13 @@
   */
 package definition.data
 
-import java.awt.font.{ FontRenderContext, LineMetrics }
+import java.awt.font.{FontRenderContext, LineMetrics}
 import java.awt.geom.Rectangle2D
-import java.awt.{ Color, Font }
-import java.io.{ DataInput, DataOutput }
+import java.awt.{Color, Font}
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.SystemSettings
+
 import scala.xml.Elem
 
 /**

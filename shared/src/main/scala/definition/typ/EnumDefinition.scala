@@ -3,8 +3,10 @@
   */
 package definition.typ
 
-import java.io.{ DataInput, DataOutput }
-import definition.data.{ DataRetriever, InstanceData }
+import java.io.{DataInput, DataOutput}
+
+import definition.data.{DataRetriever, InstanceData}
+
 import scala.collection.JavaConverters._
 
 /**

@@ -3,7 +3,7 @@
   */
 package definition.data
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
 
 /**
   *

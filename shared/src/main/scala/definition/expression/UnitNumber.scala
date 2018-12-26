@@ -1,10 +1,14 @@
 package definition.expression
 
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
+import util.Log
+
 import scala.collection.immutable.TreeSet
-import scala.collection.{ SortedSet, mutable }
+import scala.collection.{SortedSet, mutable}
+import scala.util.control.NonFatal
 
 class UnitElem(val name: String, val exponent: Byte) extends Serializable {
   override def equals(obj: Any): Boolean = obj match {
@@ -93,7 +97,7 @@ case class UnitFraction(numerator: SortedSet[UnitElem], denominator: SortedSet[U
 
 case class UnitNumber(value: Double, unitFraction: UnitFraction) extends Constant {
 
-  def getType = DataType.UnitNumberTyp
+  def getType: DataType.Value = DataType.UnitNumberTyp
 
   //def createCopy(): Expression = new UnitNumber(value,unitFraction)
 
@@ -120,6 +124,13 @@ case class UnitNumber(value: Double, unitFraction: UnitFraction) extends Constan
   def encode: String = "$e" + getTerm
 
   def getTerm: String = value.toString + unitFraction.toString
+
+  override def getReadableTerm(format: String): String = (
+    try {
+      format.format(value)
+    } catch {
+    case NonFatal(e)=> Log.e("format:"+format+" value:"+value+" error:"+e);getTerm
+    }) + unitFraction.toString
 
   override def containsString(st: String, checkNumbers: Boolean): Boolean = checkNumbers && toString.contains(st)
 

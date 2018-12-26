@@ -4,6 +4,7 @@
 package definition.typ
 
 import java.io.DataInput
+
 import definition.data.Referencable
 import util.StoreClassInfo
 

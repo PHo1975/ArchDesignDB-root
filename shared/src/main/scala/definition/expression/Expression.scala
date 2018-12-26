@@ -3,9 +3,11 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 import util.Log
+
 import scala.util.control.NonFatal
 
 /** base type for all expression classes
@@ -21,6 +23,10 @@ trait Expression extends ParserResult {
   def getChildNr(ix: Int): Expression
 
   def getTerm: String
+
+  def getReadableTerm: String = getTerm
+
+  def getReadableTerm(format:String):String=getReadableTerm
 
   def isConstant: Boolean
 
@@ -55,10 +61,10 @@ trait Expression extends ParserResult {
     * @param checker a function that is given a certain part of this term and it gives a replacement
     * @return the new term with all replacements
     */
-  def replaceExpression(checker: (Expression) => Expression): Expression =
+  def replaceExpression(checker: Expression => Expression): Expression =
     checker(this)
 
-  def foreach(f: (Expression) => Unit): Unit = {
+  def foreach(f: Expression => Unit): Unit = {
     f(this)
     var i = 0
     while (i < getChildCount) {
@@ -67,7 +73,7 @@ trait Expression extends ParserResult {
     }
   }
 
-  def exists(pred: (Expression) => Boolean): Boolean =
+  def exists(pred: Expression => Boolean): Boolean =
     if (pred(this)) true
     else {
       var i = 0

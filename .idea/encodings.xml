@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/shared/src/main/scala/definition/expression/Constant.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/shared/src/main/scala/definition/expression/CurrencyConstant.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/shared/src/main/scala/definition/expression/DateConstant.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/shared/src/main/scala/definition/expression/VectorConstant.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/shared/src/main/scala/util/Log.scala" charset="UTF-8" />
-    <file url="PROJECT" charset="UTF-8" />
-  </component>
+  <component name="Encoding" addBOMForNewFiles="with NO BOM" />
 </project>

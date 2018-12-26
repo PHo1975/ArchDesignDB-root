@@ -4,8 +4,10 @@
 package definition.expression
 
 import java.io.DataOutput
+
 import definition.typ.DataType
 import util.StringUtils
+
 import scala.util.control.NonFatal
 
 /**

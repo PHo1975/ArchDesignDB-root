@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.data.Reference
 import definition.typ.DataType
 
@@ -25,7 +26,7 @@ case class ObjectReference(typ: Int, instance: Int) extends Constant {
 
   def getNative: Any = this
 
-  def getType = DataType.ObjectRefTyp
+  def getType: DataType.Value = DataType.ObjectRefTyp
 
   //def createCopy=new ObjectReference(typ,instance)
   def getTerm: String = "(" + typ + "," + instance + ")"

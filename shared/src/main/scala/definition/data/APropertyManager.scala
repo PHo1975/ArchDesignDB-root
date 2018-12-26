@@ -9,9 +9,9 @@ package definition.data
   */
 trait APropertyManager {
 
-  def addProperty(instRef: Reference, newPropInstance: Reference) = {}
+  def addProperty(instRef: Reference, newPropInstance: Reference): Unit = {}
 
-  def removeProperty(instRef: Reference, propInstance: Reference) = {}
+  def removeProperty(instRef: Reference, propInstance: Reference): Unit = {}
 
 
 }

@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 import util.StrToInt
 
@@ -211,7 +212,7 @@ object DateConstant {
     n - (611*m)/20
   }*/
 
-  private[expression] def apply(file: DataInput) = from1970Millis(file.readLong)
+  private[expression] def apply(file: DataInput): DateConstant = from1970Millis(file.readLong)
 
   def from1970Millis(millis: Long): DateConstant = asJulian(julian1970 + millis / 86400000L)
 

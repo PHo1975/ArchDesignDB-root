@@ -1,13 +1,15 @@
 package definition.data
 
 import java.awt._
-import java.awt.font.{ TextAttribute, TextLayout }
-import definition.expression.{ Polygon, VectorConstant }
+import java.awt.font.{TextAttribute, TextLayout}
+
+import definition.expression.{Polygon, VectorConstant}
+
 import scala.collection.mutable
 
 trait RenderContext {
 
-  val strokeMap: mutable.HashMap[Int, BasicStroke] = collection.mutable.HashMap[(Int), BasicStroke]()
+  val strokeMap: mutable.HashMap[Int, BasicStroke] = collection.mutable.HashMap[Int, BasicStroke]()
   private val graphFontCache = collection.mutable.HashMap[(String, Double, Int), Font]()
   var oldClip: Option[Shape] = None
 
@@ -67,4 +69,6 @@ trait RenderContext {
   def drawSymbol(g: Graphics2D, s: SymbolPrintElement): Unit
 
   def drawSymbolFiller(g: Graphics2D, s: SymbolFillerPrintElement): Unit
+
+  def resolveImagePath(path:String):String
 }

@@ -1,7 +1,9 @@
 package definition.typ
 
 import java.io.DataInput
+
 import util.StoreClassInfo
+
 import scala.xml.Elem
 
 /**

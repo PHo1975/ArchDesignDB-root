@@ -3,8 +3,9 @@
   */
 package definition.typ
 
-import java.io.{ DataInput, DataOutput }
-import util.{ CollUtils, CustomSerializer, StrToInt }
+import java.io.{DataInput, DataOutput}
+
+import util.{CollUtils, CustomSerializer, StrToInt}
 
 /** describes an Action of a Class
   *

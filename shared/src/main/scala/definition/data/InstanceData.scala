@@ -3,11 +3,13 @@
   */
 package definition.data
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.comm.KeyAble
-import definition.expression.{ Constant, EMPTY_EX, Expression }
+import definition.expression.{Constant, EMPTY_EX, Expression}
 import definition.typ._
-import util.{ Log, StringUtils }
+import util.{Log, StringUtils}
+
 import scala.Array.canBuildFrom
 import scala.util.control.NonFatal
 import scala.util.matching.Regex

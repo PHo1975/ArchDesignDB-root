@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 /*import javax.vecmath.Point3d
@@ -219,7 +220,7 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
   def intersectionWith(other: Line3D): VectorConstant = {
     val dif = other.pos - pos
     if (dir.isLinearyDependentFrom(other.dir))
-      throw new ArithmeticException("Intersection not possible, vectors are linerary dependent " + this + " " + other);
+      throw new ArithmeticException("Intersection not possible, vectors are linerary dependent " + this + " " + other)
     val det = VectorConstant.determinant(dir, other.dir, dif)
     if (det == 0) { // there is an intersection
       val det = det2D(dir.x, dir.y, other.dir.x, other.dir.y)
@@ -240,7 +241,7 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
         }
       }
     }
-    throw new ArithmeticException("Cant find intersection between " + this + " and " + other);
+    throw new ArithmeticException("Cant find intersection between " + this + " and " + other)
   }
 
   def distanceTo(point: VectorConstant): Double = orthogonalThrough(point).toDouble
@@ -281,12 +282,8 @@ object VectorConstant {
   val tolerance = 0.0000001d
   val PI2: Double = Math.PI * 2d
   val alignTreshold = 0.00001d
-  val pointOrdering = new Ordering[VectorConstant] {
-    def compare(a: VectorConstant, b: VectorConstant): Int = if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y < b.y) -1 else if (a.y > b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
-  }
-  val pointOrderingYFlip = new Ordering[VectorConstant] {
-    def compare(a: VectorConstant, b: VectorConstant): Int = if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y > b.y) -1 else if (a.y < b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
-  }
+  val pointOrdering: Ordering[VectorConstant] = (a: VectorConstant, b: VectorConstant) => if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y < b.y) -1 else if (a.y > b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
+  val pointOrderingYFlip: Ordering[VectorConstant] = (a: VectorConstant, b: VectorConstant) => if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y > b.y) -1 else if (a.y < b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
   val upVector = new VectorConstant(0, 0, 1)
 
   def fromAngle2D(angle: Double) = new VectorConstant(math.cos(angle), math.sin(angle), 0)
@@ -303,9 +300,9 @@ object VectorConstant {
 
   def similar(a: VectorConstant, b: VectorConstant): Boolean = math.abs(a.x - b.x) < tolerance && (math.abs(a.y - b.y) < tolerance) && (math.abs(a.z - b.z) < tolerance)
 
-  def determinant(a: VectorConstant, b: VectorConstant, c: VectorConstant): Double = {
-    a.x * b.y * c.z - a.x * c.y * b.z - a.y * b.x * c.z + a.y * c.x * b.z + a.z * b.x * c.y - a.z * c.x * b.y;
-  }
+  def determinant(a: VectorConstant, b: VectorConstant, c: VectorConstant): Double =
+    a.x * b.y * c.z - a.x * c.y * b.z - a.y * b.x * c.z + a.y * c.x * b.z + a.z * b.x * c.y - a.z * c.x * b.y
+
 
   def decode(text: String): (VectorConstant, Int) = {
     val end = text.indexOf(')', 3)

@@ -35,7 +35,7 @@ trait AbstractFormBox extends AbstractFormElement {
 
   def deleteElement(elem: AbstractFormElement): (AbstractFormBox, Boolean)
 
-  def foreach(s: (AbstractFormElement) => Unit): Unit
+  def foreach(s: AbstractFormElement => Unit): Unit
 
   def setDataValue(dvalue: InstanceData, nclass: AbstractObjectClass): Unit
 

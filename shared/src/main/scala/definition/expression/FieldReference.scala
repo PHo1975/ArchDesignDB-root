@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.data.Reference
 import definition.typ.DataType
 
@@ -40,6 +41,10 @@ case class FieldReference(remType: Option[Int], remInst: Option[Int], remField: 
   def getChildNr(ix: Int): Expression = null
 
   def getTerm: String = term
+
+  override def getReadableTerm: String = cachedValue.getReadableTerm
+
+  override def getReadableTerm(format:String): String = cachedValue.getReadableTerm(format)
 
   def getNative: String = toString
 

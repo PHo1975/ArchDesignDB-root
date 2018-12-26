@@ -1,12 +1,13 @@
 package definition.expression
 
 import java.io.DataOutput
+
 import definition.typ.DataType
 
 object TodayConstant extends Expression {
   val todayString = "@heute"
 
-  def getType = DataType.DateTyp
+  def getType: DataType.Value = DataType.DateTyp
 
   def getValue: Constant = generate.getValue
 

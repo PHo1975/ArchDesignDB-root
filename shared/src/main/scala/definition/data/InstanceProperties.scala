@@ -3,8 +3,10 @@
   */
 package definition.data
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.AllClasses
+
 import scala.collection.immutable.IndexedSeq
 
 

@@ -1,8 +1,10 @@
 package definition.data
 
-import java.io.{ ByteArrayInputStream, DataInput, DataInputStream, DataOutput }
-import definition.expression.{ BlobConstant, Expression, VectorConstant }
+import java.io.{ByteArrayInputStream, DataInput, DataInputStream, DataOutput}
+
+import definition.expression.{BlobConstant, Expression, VectorConstant}
 import definition.typ.DataType
+
 import scala.collection.immutable
 
 case class DimensionPoint(var refPoint: VectorConstant, var helpLineLength: Double, var textPos: Option[VectorConstant]) {

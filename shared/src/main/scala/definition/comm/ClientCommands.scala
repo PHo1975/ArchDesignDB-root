@@ -42,4 +42,5 @@ object ClientCommands extends Enumeration {
   val answerEnquiry = Value("Answer Enquiry")
   val getNextParentOfType = Value("Next Parent Of Type")
   val searchForText = Value("Search for Text")
+  val convertInstances = Value("Convert Instances")
 }

@@ -19,7 +19,7 @@ abstract class PartArea(pl: PointList) {
 
 
 object NO_AREA_MATCH extends PartArea(PointList(Seq())) {
-  val calcExpression = EMPTY_EX
+  val calcExpression: Expression = EMPTY_EX
 
   def partLines: Seq[(VectorConstant, VectorConstant)] = Seq.empty
 
@@ -36,7 +36,7 @@ class TrianglePartArea(pl: PointList, dividerLines: Seq[(VectorConstant, VectorC
   val partLines: Seq[(VectorConstant, VectorConstant)] = (oppositePoint, hitPoint) +: dividerLines
   val perpendicularLength: Double = (hitPoint - oppositePoint).toDouble
   val calcExpression: Expression = checkSubstExpression(TrianglePartArea.createTriangleExpression(maxEdgeLength._1, perpendicularLength))
-  val textAngle = pointList.edges(maxEdgeLength._2).XYAngle
+  val textAngle: Double = pointList.edges(maxEdgeLength._2).XYAngle
   val texts = List((firstTextPos, textAngle, PolygonDivider.formatString.format(maxEdgeLength._1)),
     (secondTextPos, textAngle + PolygonDivider.PIHalf, PolygonDivider.formatString.format(perpendicularLength)))
 
@@ -58,7 +58,7 @@ class RectTrianglePartArea(pl: PointList, val partLines: Seq[(VectorConstant, Ve
   val firstEdge: Edge = pointList.edges(pointList.getPrevPoint(rightAngleIx))
   val secondEdge: Edge = pointList.edges(rightAngleIx)
   val calcExpression: Expression = checkSubstExpression(TrianglePartArea.createTriangleExpression(firstEdge.length, secondEdge.length))
-  val textAngle = firstEdge.XYAngle
+  val textAngle: Double = firstEdge.XYAngle
   val texts = List((firstTextPos, textAngle, PolygonDivider.formatString.format(firstEdge.length)),
     (secondTextPos, textAngle + PolygonDivider.PIHalf, PolygonDivider.formatString.format(secondEdge.length)))
 
@@ -73,7 +73,7 @@ class RectanglePartArea(pl: PointList, val partLines: Seq[(VectorConstant, Vecto
   val firstEdge: Edge = pointList.edges.head
   val secondEdge: Edge = pointList.edges(1)
   val calcExpression: Expression = checkSubstExpression(PolygonDivider.createMultExpression(firstEdge.length, secondEdge.length))
-  val textAngle = firstEdge.XYAngle
+  val textAngle: Double = firstEdge.XYAngle
   val texts = List((firstTextPos, textAngle, PolygonDivider.formatString.format(firstEdge.length)),
     (secondTextPos, textAngle + PolygonDivider.PIHalf, PolygonDivider.formatString.format(secondEdge.length)))
 
@@ -104,7 +104,7 @@ abstract class AbstractTrapez(pl: PointList) extends PartArea(pl) {
 
   def thirdTextPos: VectorConstant = PolygonDivider.textPointFromEdge(thirdEdge, secondEdge)
 
-  def textAngle = firstEdge.XYAngle
+  def textAngle: Double = firstEdge.XYAngle
 }
 
 
@@ -141,7 +141,7 @@ object FourPointsPartArea {
       val pointList = if (pl.isClockWise) pl.reverse else pl
       val rectAngles = PolygonDivider.rectAnglesIndices(pointList)
       if (rectAngles.size == 4) Some(new RectanglePartArea(pl))
-      else if (rectAngles.size == 2) {
+      else if (rectAngles.size == 2 && ((rectAngles.head+1 == rectAngles.last)||(rectAngles.head==0 && rectAngles.last==3) )) {
         //println("Check 4 Points cosangles:"+pointList.cosAngles.mkString(",")+" rectAngles:"+rectAngles.mkString(",")  )
         val swr = switchRectParams(rectAngles)
         //if(swr(1)== pointList.nextVect(swr.head))
@@ -218,14 +218,15 @@ object TrapezPart {
     def zippedAngles: Iterator[(Double, Int)]#GroupedIterator[(Double, Int)] = Polygon.ringLoop(angles.zip(pointList.points.indices)).sliding(3)
 
     // check for Trapezes with one rect angle
-    //println("Angles:")
-    //println(angles.zip((pointList.points.indices)).mkString("| "))
+    println("Angles:")
+    println(angles.zip(pointList.points.indices).mkString("| "))
+    println("Edges: \n"+pointList.edges.mkString(" \n "))
     zippedAngles.foreach {
       case Seq((firstAngle, fix), (middleAngle, mix), (lastAngle, lix)) =>
         if (PolygonDivider.angleIsRight(middleAngle, clockWise = false) && (firstAngle > 0 || lastAngle > 0)) {
           //println("found  fix:"+fix+" mix:"+mix+" lix:"+lix+ " firstangle:"+firstAngle+" ma:"+middleAngle)
 
-          val (testTrap, line, delta) = if (firstAngle > 0) {
+          val (testTrap: PointList, line:Line3D, delta:VectorConstant) = if (firstAngle > 0) {
             val firstEdge = pointList.edges(pointList.getPrevPoint(fix))
             val thirdEdge = pointList.edges(mix)
             val line = pointList.edges(fix).toLine3D
@@ -373,7 +374,7 @@ object PolygonDivider {
 
   val meterFraction = UnitFraction(SortedSet(new UnitElem("m", 1))(ordering), SortedSet[UnitElem]()(ordering))
 
-  @annotation.tailrec def foreachPair[T](list: List[T], checkFunc: (T) => Boolean, execFunc: (T, T) => Unit): Unit = list match {
+  @annotation.tailrec def foreachPair[T](list: List[T], checkFunc: T => Boolean, execFunc: (T, T) => Unit): Unit = list match {
     case Nil =>
     case _ :: Nil =>
     case first :: second =>

@@ -3,7 +3,7 @@
   */
 package definition.comm
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
 
 /** the result of a database command
   *

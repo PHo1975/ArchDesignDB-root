@@ -4,9 +4,11 @@
 package definition.typ
 
 import java.io.DataInput
-import definition.expression.{ EMPTY_EX, Expression }
-import util.XMLUtils.{ boolText, optText, readBool, readOptString }
-import scala.xml.{ Elem, Text }
+
+import definition.expression.{EMPTY_EX, Expression}
+import util.XMLUtils.{boolText, optText, readBool, readOptString}
+
+import scala.xml.{Elem, Text}
 
 /**
   *

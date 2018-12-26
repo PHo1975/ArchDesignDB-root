@@ -4,7 +4,9 @@
 package definition.comm
 
 import java.io._
+
 import definition.data._
+
 import scala.collection.immutable.Seq
 import scala.collection.mutable
 import scala.util.parsing.combinator._
@@ -77,7 +79,7 @@ class UserSetting {
   var basicFolders: collection.immutable.Map[String, Reference] = collection.Map.empty
   private var groupList = mutable.HashMap[String, PropertyGroup]()
 
-  def readFromStream(in: DataInput, length: Int, atClient: Boolean) = {
+  def readFromStream(in: DataInput, length: Int, atClient: Boolean): Unit = {
     val buffer = new Array[Byte](length)
     if (length > 0) in.readFully(buffer, 0, length)
     val s = new String(buffer, "UTF-8")

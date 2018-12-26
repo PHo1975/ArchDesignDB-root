@@ -3,10 +3,12 @@
   */
 package definition.typ
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import util.XMLUtils._
-import util.{ CustomSerializer, StrToInt }
-import scala.xml.{ Elem, Text }
+import util.{CustomSerializer, StrToInt}
+
+import scala.xml.{Elem, Text}
 
 trait AbstractCCD extends CustomSerializer {
   lazy val childName: String = AllClasses.get.getClassByID(childClassID).getDescriptionOrName
@@ -99,7 +101,7 @@ case class PropertyFieldDefinition(name: String, single: Boolean = false, allowe
 
 
 object PropertyFieldDefinition {
-  def fromXML(node: scala.xml.Node, childDefFactory: (scala.xml.Node) => AbstractCCD): PropertyFieldDefinition = {
+  def fromXML(node: scala.xml.Node, childDefFactory: scala.xml.Node => AbstractCCD): PropertyFieldDefinition = {
     val name = (node \ "@name").text
     val single = readBool(node, "@single")
     val allowedClass = readOptString(node, "@allowedClass") match {

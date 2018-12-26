@@ -5,11 +5,13 @@ package definition.data
 
 import java.awt.font.TextLayout
 import java.awt.geom._
-import java.awt.{ BasicStroke, Color, Font, Graphics2D }
-import java.io.{ DataInput, DataOutput, File }
-import javax.imageio.ImageIO
+import java.awt.{BasicStroke, Color, Font, Graphics2D}
+import java.io.{DataInput, DataOutput, File}
+
 import definition.expression._
-import util.{ Log, StringUtils }
+import javax.imageio.ImageIO
+import util.{Log, StringUtils}
+
 import scala.util.control.NonFatal
 
 /**
@@ -44,7 +46,7 @@ object PageBreakMarker extends NoBoundsPrintElement(PrintElType.PageBreak) {
 
 
 class ClipPrintElement(nbounds: Rectangle2D.Float) extends PrintElement(nbounds) {
-  def getElementType = PrintElType.ClipPrintElement
+  def getElementType:PrintElType.Value = PrintElType.ClipPrintElement
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     ctx.oldClip = Option(g.getClip)
@@ -66,24 +68,36 @@ object DecoreMarkerElement extends NoBoundsPrintElement(PrintElType.DecoreMarker
 
 
 object PrintElType extends Enumeration {
-  val TextField = Value("TextElement")
-  val Line = Value("LineElement")
-  val TextArea = Value("TextArea")
-  val Rect = Value("RectElement")
-  val Arc = Value("ArcElement")
-  val Poly = Value("PolyElement")
-  val Ellipse = Value("Ellipse")
-  val GraphText = Value("GraphText")
-  val Filler = Value("Filler")
-  val DimLine = Value("DimLineElement")
-  val PageBreak = Value("PageBreak")
-  val ClipPrintElement = Value("Clip")
-  val ClipRestoreElement = Value("ClipRestore")
-  val Bitmap = Value("Bitmap")
-  val Symbol = Value("Symbol")
-  val SymbolFiller = Value("SymbolFiller")
-  val DecoreMarker = Value("Decore")
-  val GraphBitmap = Value("GraphBitmap")
+  val TextField: PrintElType.Value = Value("TextElement")
+  val Line: PrintElType.Value = Value("LineElement")
+  val TextArea: PrintElType.Value = Value("TextArea")
+  val Rect: PrintElType.Value = Value("RectElement")
+  val Arc: PrintElType.Value = Value("ArcElement")
+  val Poly: PrintElType.Value = Value("PolyElement")
+  val Ellipse: PrintElType.Value = Value("Ellipse")
+  val GraphText: PrintElType.Value = Value("GraphText")
+  val Filler: PrintElType.Value = Value("Filler")
+  val DimLine: PrintElType.Value = Value("DimLineElement")
+  val PageBreak: PrintElType.Value = Value("PageBreak")
+  val ClipPrintElement: PrintElType.Value = Value("Clip")
+  val ClipRestoreElement: PrintElType.Value = Value("ClipRestore")
+  val Bitmap: PrintElType.Value = Value("Bitmap")
+  val Symbol: PrintElType.Value = Value("Symbol")
+  val SymbolFiller: PrintElType.Value = Value("SymbolFiller")
+  val DecoreMarker: PrintElType.Value = Value("Decore")
+  val GraphBitmap: PrintElType.Value = Value("GraphBitmap")
+  val RotationPrintElement: PrintElType.Value = Value("Rotation")
+  val RotationEndPrintElement: PrintElType.Value = Value("RotationEnd")
+}
+
+class RotationPrintElement(px:Float,py:Float,angle:Float) extends PrintElement(new Rectangle2D.Float(px,py,angle,0f)){
+  override def getElementType: PrintElType.Value = PrintElType.RotationPrintElement
+
+  override def print(g: Graphics2D, ctx: RenderContext): Unit = {}
+}
+
+object RotationEndPrintElement extends NoBoundsPrintElement(PrintElType.RotationEndPrintElement) {
+  override def print(g: Graphics2D, ctx: RenderContext): Unit = {}
 }
 
 
@@ -96,7 +110,7 @@ abstract class ATextPrintElement(nbounds: Rectangle2D.Float, fontStyle: String) 
     out.writeUTF(fontStyle)
   }
 
-  def getElementType = PrintElType.TextField
+  def getElementType:PrintElType.Value = PrintElType.TextField
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     val fStyle = ctx.fontStyleList.getStyle(fontStyle)
@@ -143,7 +157,7 @@ case class DimLinePrintElement(nbounds: Rectangle2D.Float, ncolor: Color, style:
     for (mp <- mPoints) mp.write(out)
   }
 
-  def getElementType = PrintElType.DimLine
+  def getElementType: PrintElType.Value = PrintElType.DimLine
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     ctx.drawDimLine(g, this)
@@ -165,7 +179,7 @@ case class SymbolPrintElement(nbounds: Rectangle2D.Float, symbolData: Reference,
     out.writeUTF(paramValues)
   }
 
-  def getElementType = PrintElType.Symbol
+  def getElementType: PrintElType.Value = PrintElType.Symbol
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     ctx.drawSymbol(g, this)
@@ -192,7 +206,7 @@ case class SymbolFillerPrintElement(nbounds: Rectangle2D.Float, symbolData: Refe
     out.writeDouble(value2)
   }
 
-  def getElementType = PrintElType.SymbolFiller
+  def getElementType:PrintElType.Value = PrintElType.SymbolFiller
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     ctx.drawSymbolFiller(g, this)
@@ -228,7 +242,7 @@ case class EllipsePrintElement(nbounds: Rectangle2D.Float, thick: Float, lineSty
     out.writeFloat(endAngle)
   }
 
-  def getElementType = PrintElType.Ellipse
+  def getElementType:PrintElType.Value = PrintElType.Ellipse
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     val centerX = bounds.x + r1
@@ -268,7 +282,7 @@ case class ArcPrintElement(nbounds: Rectangle2D.Float, thick: Float, lineStyle: 
     out.writeFloat(endAngle)
   }
 
-  def getElementType = PrintElType.Arc
+  def getElementType:PrintElType.Value = PrintElType.Arc
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     PrintElement.printArc.setArc(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.width), ctx.toUnit(bounds.height),
@@ -288,7 +302,7 @@ case class RectPrintElement(nbounds: Rectangle2D.Float, thick: Float, lineStyle:
     out.writeInt(borderColor.getRGB)
   }
 
-  def getElementType = PrintElType.Rect
+  def getElementType:PrintElType.Value = PrintElType.Rect
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     PrintElement.printRect.setRect(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.width), ctx.toUnit(bounds.height))
@@ -308,7 +322,7 @@ case class FillPrintElement(nbounds: Rectangle2D.Float, foregroundColor: Color, 
     out.writeInt(backgroundColor.getRGB)
   }
 
-  def getElementType = PrintElType.Filler
+  def getElementType:PrintElType.Value = PrintElType.Filler
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     PrintElement.printRect.setRect(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.width), ctx.toUnit(bounds.height))
@@ -326,7 +340,7 @@ case class LinePrintElement(nbounds: Rectangle2D.Float, thick: Float, lineStyle:
     out.writeInt(lineColor.getRGB)
   }
 
-  def getElementType = PrintElType.Line
+  def getElementType:PrintElType.Value = PrintElType.Line
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = if (thick != 0) {
     PrintElement.printLine.setLine(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.x + bounds.width), ctx.toUnit(bounds.y + bounds.height))
@@ -344,7 +358,7 @@ case class BitmapPrintElement(nbounds: Rectangle2D.Float, link: String) extends 
     out.writeUTF(link)
   }
 
-  def getElementType = PrintElType.Bitmap
+  def getElementType:PrintElType.Value = PrintElType.Bitmap
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     val file = new File(link)
@@ -366,10 +380,10 @@ case class GraphBitmapPrintElement(nbounds: Rectangle2D.Float, link: String, ang
     out.writeDouble(angle)
   }
 
-  def getElementType = PrintElType.GraphBitmap
+  def getElementType:PrintElType.Value = PrintElType.GraphBitmap
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
-    val file = new File(link)
+    val file = new File(ctx.resolveImagePath(link))
     if (file.exists) {
       try {
         val image = ImageIO.read(file)
@@ -389,7 +403,7 @@ case class GraphBitmapPrintElement(nbounds: Rectangle2D.Float, link: String, ang
 case class GraphTextElement(nbounds: Rectangle2D.Float, text: String, fontName: String, style: Int, textAngle: Float, obligeAngle: Float, color: Color, lineSpace: Float) extends
   PrintElement(nbounds) {
 
-  def getElementType = PrintElType.GraphText
+  def getElementType:PrintElType.Value = PrintElType.GraphText
 
   override def write(out: DataOutput): Unit = {
     super.write(out)
@@ -503,17 +517,17 @@ case class PolyPrintElement(textScale: Float, lineStyle: Byte, color: Color, fil
     out.writeUTF(name)
   }
 
-  def getElementType = PrintElType.Poly
+  def getElementType:PrintElType.Value = PrintElType.Poly
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     def transform(v: VectorConstant) = new VectorConstant(ctx.toUnit(v.x), ctx.toUnit(v.y), 0)
 
     val newPoly = poly.toPathTransformed(transform)
     val theArea = new Area(newPoly)
-    if (color != Color.white) {
+    /*if (color != Color.white) {*/
       g.setColor(color)
       g.fill(theArea)
-    }
+    //}
     for (hs <- hatchStyle)
       ctx.drawHatch(poly, hs, paperScale, g, if (hs != 0) Color.black else fillColor, layerScale, vStartPoint, hatchAngle)
     if (name.trim.length > 0) {
@@ -579,6 +593,8 @@ object PrintElement {
     case PrintElType.DecoreMarker => DecoreMarkerElement
     case PrintElType.GraphBitmap => GraphBitmapPrintElement(readBounds(in), in.readUTF, in.readDouble())
     case PrintElType.PageBreak => PageBreakMarker
+    case PrintElType.RotationPrintElement => val b=readBounds(in); new RotationPrintElement(b.x,b.y,b.width)
+    case PrintElType.RotationEndPrintElement=> RotationEndPrintElement
     case other => throw new IllegalArgumentException("Unknown PrintElement-Type:" + other)
   }
 
@@ -586,7 +602,7 @@ object PrintElement {
 }
 
 
-class FactoryMap[A, B](factory: (A) => B) extends collection.mutable.HashMap[A, B] {
+class FactoryMap[A, B](factory: A => B) extends collection.mutable.HashMap[A, B] {
   override def apply(a: A): B = if (contains(a)) super.apply(a)
                                 else {
                                   val n = factory(a)

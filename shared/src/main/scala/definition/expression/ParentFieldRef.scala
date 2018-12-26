@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 /**
@@ -37,6 +38,10 @@ case class ParentFieldRef(ownerIx: Byte, fieldNr: Byte, var cachedValue: Constan
 
 
   def getTerm: String = "#P" + ownerIx + "F" + fieldNr
+
+  override def getReadableTerm: String = cachedValue.getReadableTerm
+
+  override def getReadableTerm(format:String): String = cachedValue.getReadableTerm(format)
 
   override def equals(other: Any): Boolean =
     other match {

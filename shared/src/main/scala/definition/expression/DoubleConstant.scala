@@ -4,7 +4,11 @@
 package definition.expression
 
 import java.io.DataOutput
+
 import definition.typ.DataType
+import util.Log
+
+import scala.util.control.NonFatal
 
 /**
   *
@@ -14,6 +18,12 @@ case class DoubleConstant(n: Double) extends Constant {
   def getType: DataType.Value = DataType.DoubleTyp
 
   def getTerm: String = toString
+
+  override def getReadableTerm(format:String):String= try {
+    format.format(n)
+  } catch {
+    case NonFatal(e)=> Log.e("format:"+format+" value:"+n+" error:"+e);getTerm
+  }
 
   override def toString: String = String.valueOf(n)
 

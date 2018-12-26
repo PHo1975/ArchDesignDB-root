@@ -3,7 +3,7 @@
   */
 package definition.data
 
-import definition.expression.{ Plane3D, VectorConstant }
+import definition.expression.{Plane3D, VectorConstant}
 
 
 /**

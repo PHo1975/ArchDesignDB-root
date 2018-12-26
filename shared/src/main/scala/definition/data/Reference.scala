@@ -3,9 +3,11 @@
   */
 package definition.data
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.AllClasses
 import util.Log
+
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
@@ -35,9 +37,7 @@ import scala.util.matching.Regex
 
 
 object Reference {
-  lazy val ordering = new Ordering[Reference] {
-    def compare(a: Reference, b: Reference): Int = a.compareTo(b)
-  }
+  lazy val ordering: Ordering[Reference] = (a: Reference, b: Reference) => a.compareTo(b)
   val RMatch: Regex ="""\(?(\d+)[,\.](\d+)\)?""".r
 
   def apply(file: DataInput): Reference = {

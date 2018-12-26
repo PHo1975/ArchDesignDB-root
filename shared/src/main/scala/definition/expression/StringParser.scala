@@ -4,6 +4,7 @@
 package definition.expression
 
 import definition.typ.DataType
+
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.JavaTokenParsers
 

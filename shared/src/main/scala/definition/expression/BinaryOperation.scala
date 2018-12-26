@@ -3,7 +3,8 @@
   */
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 /** Binar Operation expression
@@ -30,13 +31,19 @@ import definition.typ.DataType
 
   def getChildNr(ix: Int): Expression = {ix match {case 0 => left; case 1 => right}}
 
-  def getTerm: String = checkParentheses(left, right = false) + " " + operator + " " + checkParentheses(right, right = true)
+  def getTerm: String = checkParentheses(left,left.getTerm, right = false) + " " + operator + " " + checkParentheses(right,right.getTerm, right = true)
 
-  private def checkParentheses(arg: Expression, right: Boolean): String = {
+  override def getReadableTerm: String =
+    checkParentheses(left,left.getReadableTerm, right = false) + " " + operator + " " + checkParentheses(right,right.getReadableTerm, right = true)
+
+  override def getReadableTerm(format:String): String =
+    checkParentheses(left,left.getReadableTerm(format), right = false) + " " + operator + " " + checkParentheses(right,right.getReadableTerm(format), right = true)
+
+  private def checkParentheses(arg: Expression,term:String, right: Boolean): String = {
     arg match {
       case bi: BinaryOperation if bi.operator.level < operator.level ||
-        (right && (bi.operator.level == operator.level) && (operator.opChar == '/' || operator.opChar == '%' || operator.opChar == '-')) => "(" + arg.getTerm + ")"
-      case _ => arg.getTerm
+        (right && (bi.operator.level == operator.level) && (operator.opChar == '/' || operator.opChar == '%' || operator.opChar == '-')) => "(" + term + ")"
+      case _ => term
     }
   }
 
@@ -53,7 +60,7 @@ import definition.typ.DataType
     left.getElementList(whatType, right.getElementList(whatType, super.getElementList(whatType, resultList)))
   }
 
-  override def replaceExpression(checker: (Expression) => Expression): Expression = {
+  override def replaceExpression(checker: Expression => Expression): Expression = {
     val newMe = checker(this)
     if (newMe == this) // was not changed
       new BinaryOperation(left.replaceExpression(checker), operator, right.replaceExpression(checker))

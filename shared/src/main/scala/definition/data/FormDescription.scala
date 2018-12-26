@@ -4,8 +4,10 @@
 package definition.data
 
 import java.awt.Graphics2D
-import definition.expression.{ Constant, Expression }
+
+import definition.expression.{Constant, Expression}
 import definition.typ.SystemSettings
+
 import scala.xml.Elem
 
 

@@ -4,9 +4,10 @@
 package definition.expression
 
 import java.io.DataOutput
+
 import definition.typ.DataType
 //import java.util.Date
-import definition.data.{ EMPTY_REFERENCE, Reference }
+import definition.data.{EMPTY_REFERENCE, Reference}
 
 /** base type of all Constant classes
   *
@@ -106,7 +107,7 @@ object EMPTY_EX extends Constant with Serializable {
 
   def toBoolean: Boolean = false
 
-  override def toCurrency = Expression.NullCURRENCY
+  override def toCurrency:CurrencyConstant = Expression.NullCURRENCY
 
   def getTerm: String = ""
 
@@ -118,7 +119,7 @@ object EMPTY_EX extends Constant with Serializable {
 
   override def isNullConstant = true
 
-  override def toDate = DateConstant.NULL_DATE
+  override def toDate: DateConstant = DateConstant.NULL_DATE
 
   def encode = "$N"
 }

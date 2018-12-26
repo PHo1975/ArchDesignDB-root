@@ -5,6 +5,7 @@ package definition.expression
 
 
 import java.io._
+
 import definition.typ.DataType
 
 /**
@@ -47,7 +48,7 @@ case class BlobConstant(data: Array[Byte]) extends Constant {
 
   override def isNumberConstant = false
 
-  def fillData(func: (DataOutput) => Unit): BlobConstant = {
+  def fillData(func: DataOutput => Unit): BlobConstant = {
     val byteStream = new ByteArrayOutputStream()
     val outStream = new DataOutputStream(byteStream)
     func(outStream)
@@ -59,7 +60,7 @@ case class BlobConstant(data: Array[Byte]) extends Constant {
 
 
 object BlobConstant {
-  def fillData(func: (DataOutput) => Unit): BlobConstant = {
+  def fillData(func: DataOutput => Unit): BlobConstant = {
     val byteStream = new ByteArrayOutputStream()
     val outStream = new DataOutputStream(byteStream)
     func(outStream)

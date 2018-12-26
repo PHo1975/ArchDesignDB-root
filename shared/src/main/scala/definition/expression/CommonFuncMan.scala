@@ -1,7 +1,8 @@
 package definition.expression
 
-import definition.data.{ InstanceData, Reference }
+import definition.data.{InstanceData, Reference}
 import definition.typ.DataType
+
 import scala.util.control.NonFatal
 
 trait VariableResolver {
@@ -98,9 +99,7 @@ class CommonFuncMan extends FunctionManager {
     )
   )
 
-  registerVariableResolver(new MathVariableResolver)
-
-  protected val sumFunc = new SingleCollFunction("doubleSum") {
+  protected val sumFunc: SingleCollFunction = new SingleCollFunction("doubleSum") {
     def childAdded(oldResult: Constant, newValue: Constant): Constant = {
       //println("SumFunc childAdded oldResult:"+oldResult+" newValue:"+newValue+" res:"+BinOperator.plusOp.getValue(oldResult,newValue).get)
       BinOperator.plusOp.getUnitSafeValue(oldResult, newValue, keepFirstValueUnit = false).get
@@ -114,7 +113,7 @@ class CommonFuncMan extends FunctionManager {
 
     def emptyValue: Constant = new DoubleConstant(0)
   }
-  protected val currencySumFunc = new SingleCollFunction("currencySum") {
+  protected val currencySumFunc: SingleCollFunction = new SingleCollFunction("currencySum") {
     def childAdded(oldResult: Constant, newValue: Constant): Constant = {
       BinOperator.plusOp.getUnitSafeValue(oldResult.toCurrency, newValue.toCurrency, keepFirstValueUnit = false).get
     }
@@ -139,6 +138,8 @@ class CommonFuncMan extends FunctionManager {
   )
 
   var variableResolvers: Map[String, VariableResolver] = Map.empty
+
+  registerVariableResolver(new MathVariableResolver)
 
   def getFunctionValue(module: Option[String], funcName: String, paramValues: List[Constant]): Constant = {
     val uname = funcName.toLowerCase
@@ -180,7 +181,7 @@ class CommonFuncMan extends FunctionManager {
 
 // *********************************** HELPER CLASSES ********************************************
 
-case class FEntry(params: List[ParDes], func: (List[Constant]) => Constant)
+case class FEntry(params: List[ParDes], func: List[Constant] => Constant)
 
 
 // parameter description

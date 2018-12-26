@@ -2,13 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dbdef.iml" filepath="$PROJECT_DIR$/.idea/modules/dbdef.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/dbdef-sources.iml" filepath="$PROJECT_DIR$/.idea/modules/dbdef-sources.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJS.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJS.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJS-build.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJS-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJVM.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJVM.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJVM-build.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJVM-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jvm-dbdef.iml" filepath="$PROJECT_DIR$/.idea/modules/jvm-dbdef.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wurzel.iml" filepath="$PROJECT_DIR$/.idea/modules/wurzel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wurzel-build.iml" filepath="$PROJECT_DIR$/.idea/modules/wurzel-build.iml" />
     </modules>
   </component>
 </project>

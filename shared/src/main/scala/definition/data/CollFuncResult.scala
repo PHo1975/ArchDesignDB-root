@@ -4,7 +4,8 @@
 package definition.data
 
 import java.io.DataOutput
-import definition.expression.{ CollectingFuncCall, Constant }
+
+import definition.expression.{CollectingFuncCall, Constant}
 
 
 /** a Flag to signal that a field in a parent instance has a collectingFunction

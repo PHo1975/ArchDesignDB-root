@@ -1,6 +1,7 @@
 package util
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.expression.Expression
 
 trait StoreClassInfo extends Product {

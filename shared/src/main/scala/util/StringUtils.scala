@@ -2,7 +2,8 @@ package util
 
 import java.awt.font.TextLayout
 import java.awt.geom.Rectangle2D
-import java.awt.{ Color, Graphics2D }
+import java.awt.{Color, Graphics2D}
+
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
 

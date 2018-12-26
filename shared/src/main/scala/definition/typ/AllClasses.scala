@@ -3,8 +3,9 @@
   */
 package definition.typ
 
-import definition.data.{ OwnerReference, Referencable, Reference }
+import definition.data.{OwnerReference, Referencable, Reference}
 import util.Log
+
 import scala.Array.fallbackCanBuildFrom
 import scala.collection.mutable
 

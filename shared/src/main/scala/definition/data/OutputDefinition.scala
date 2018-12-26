@@ -4,7 +4,8 @@
 package definition.data
 
 import definition.expression._
-import definition.typ.{ DataType, SystemSettings }
+import definition.typ.{DataType, SystemSettings}
+
 import scala.xml.Elem
 
 
@@ -13,7 +14,7 @@ import scala.xml.Elem
   */
 case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Seq[(String, Constant)]) {
   lazy val outName: String = getOutName
-  var formName: String = ""
+  val formName: String = ""
 
   def getOutName: String = {
     val papers = paperSetting.split('|')
@@ -43,7 +44,7 @@ case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSe
 
 
 object OutputDefinition {
-  val trayTranslations = Map("bottom" -> "Unten", "top" -> "Oben", "manual" -> "Manuell", "Automatic-Feeder" -> "Autom. Einzug")
+  val trayTranslations: Map[String, String] = Map("bottom" -> "Unten", "top" -> "Oben", "manual" -> "Manuell", "Automatic-Feeder" -> "Autom. Einzug")
   val odefType: Int = SystemSettings().systemTypes("OutputDef")
 
   def apply(data: InstanceData, paramChildren: Seq[InstanceData]): OutputDefinition = {
@@ -59,14 +60,12 @@ object OutputDefinition {
       (node \ "@portrait").text == "1", (node \\ "PValue").map(paramFromXML))
   }
 
-  def paramFromXML(node: scala.xml.Node): (String, Constant) = ((node \ "@name").text, (StringParser.parse((node \ "@value").text.replace("\"", "")) match {
-    case ex: Expression => ex
-    case err: ParserError =>
-      val errorMessage = "Error when Parsing paramFromXML node '" + (node \ "@name").text + "' value:" + (node \ "@value").text.replace("\"", "") +
-        " " + err.message + " off:" + err.offset
-      util.Log.e(errorMessage)
-      println(errorMessage)
-      EMPTY_EX
-  }).getValue)
+  def paramFromXML(node: scala.xml.Node): (String, Constant) ={
+    val text=(node \ "@value").text.replace("\"", "")
+    ((node \ "@name").text, (StringParser.parse(text) match {
+      case ex: Expression => ex
+      case _ : ParserError =>  StringConstant(text)
+    }).getValue)
+  }
 
 }

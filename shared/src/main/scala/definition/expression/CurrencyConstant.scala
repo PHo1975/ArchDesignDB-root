@@ -47,7 +47,7 @@ case class CurrencyConstant(n: Long) extends Constant {
 
   override def containsString(st: String, checkNumbers: Boolean): Boolean = checkNumbers && toString.contains(st)
 
-  override def toString: String = "%,.2f".format(doubleValue) + CurrencyConstant.currencySign
+  override def toString: String = getTerm
 }
 
 

@@ -1,6 +1,6 @@
 package definition.data
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
 
 case class HolidayDefinition(name: String, month_easter: Int, day: Int, official: Boolean) {
   def this(data: InstanceData) = this(data.fieldValue.head.toString, data.fieldValue(1).toInt,

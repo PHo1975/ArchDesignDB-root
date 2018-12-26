@@ -1,11 +1,12 @@
 package definition.expression
 
-import java.io.{ DataInput, DataOutput }
+import java.io.{DataInput, DataOutput}
+
 import definition.typ.DataType
 
 @SerialVersionUID(14237L) case class Variable(module: String, name: String) extends Expression {
 
-  def getType = DataType.VariableTyp
+  def getType: DataType.Value = DataType.VariableTyp
 
   def getValue: Constant = if (FunctionManager.get == null) EMPTY_EX else FunctionManager.get.getVariableValue(module, name)
 
@@ -24,6 +25,8 @@ import definition.typ.DataType
   def encode: String = "$Y" + getTerm + ";"
 
   def getTerm: String = if (module.length == 0) name else module + "_" + name
+
+  override def getReadableTerm: String = getValue.getReadableTerm
 
   override def containsString(st: String, checkNumbers: Boolean): Boolean = name.contains(st)
 
