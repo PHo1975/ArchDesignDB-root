@@ -36,7 +36,7 @@ trait SystemSettings {
 
 
 object SystemSettings {
-  val settings: SystemSettings = null
+  var settings: SystemSettings = null
 
   def apply(): SystemSettings = settings
 }
