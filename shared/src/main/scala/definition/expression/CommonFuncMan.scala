@@ -19,60 +19,67 @@ trait VariableResolver {
 class CommonFuncMan extends FunctionManager {
   val funcList: Map[String, FEntry] = Map[String, FEntry](
     "sin" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.sin(x.head.toDouble))
+      new DoubleConstant(math.sin(x.head.getValue.toDouble))
     ),
     "cos" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.cos(x.head.toDouble))
+      new DoubleConstant(math.cos(x.head.getValue.toDouble))
     ),
     "tan" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.tan(x.head.toDouble))
+      new DoubleConstant(math.tan(x.head.getValue.toDouble))
     ),
     "atan" -> FEntry(List(ParDes(DataType.DoubleTyp), ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.atan2(x.head.toDouble, x(1).toDouble))
+      new DoubleConstant(math.atan2(x.head.getValue.toDouble, x(1).getValue.toDouble))
     ),
     "sqrt" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.sqrt(x.head.toDouble))
+      x.head.getValue match {
+        case u:UnitNumber=> new UnitNumber(math.sqrt(u.value), u.unitFraction.sqrt())
+        case o => new DoubleConstant(math.sqrt(o.toDouble))
+      }
+
+    ),
+    "pow"-> FEntry(List(ParDes(DataType.DoubleTyp),ParDes(DataType.DoubleTyp)),x =>
+    new DoubleConstant(math.pow(x.head.getValue.toDouble,x(1).getValue.toDouble))
     ),
     "log10" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.log10(x.head.toDouble))
+      new DoubleConstant(math.log10(x.head.getValue.toDouble))
     ),
-    "log" -> FEntry(List(ParDes(DataType.DoubleTyp)), x =>
-      new DoubleConstant(math.log(x.head.toDouble))
+    "log" ->  FEntry(List(ParDes(DataType.DoubleTyp)), x =>
+      new DoubleConstant(math.log(x.head.getValue.toDouble))
     ),
     "max" -> FEntry(List(ParDes(DataType.DoubleTyp), ParDes(DataType.DoubleTyp)), x => {
-      val v1 = x.head.toDouble
-      val v2 = x(1).toDouble
+      val v1 = x.head.getValue.toDouble
+      val v2 = x(1).getValue.toDouble
       //System.out.println("call max "+x)
       new DoubleConstant(if (v1 < v2) v2 else v1)
     }
     ),
     "if" -> FEntry(List(ParDes(DataType.undefined), ParDes(DataType.undefined), ParDes(DataType.undefined)), x => {
-      if (x.head.toBoolean) x(1).getValue
+      if (x.head.getValue.toBoolean) x(1).getValue
       else x(2).getValue
     }),
     "v" -> FEntry(List(ParDes(DataType.undefined), ParDes(DataType.undefined), ParDes(DataType.undefined)), x => {
-      new VectorConstant(x.head.toDouble, x(1).toDouble, x(2).toDouble)
+      new VectorConstant(x.head.getValue.toDouble, x(1).getValue.toDouble, x(2).getValue.toDouble)
     }),
     "runden" -> FEntry(List(ParDes(DataType.DoubleTyp), ParDes(DataType.IntTyp)), x => {
-      val num = x.head.toDouble
-      val digits = x(1).toInt
+      val num = x.head.getValue.toDouble
+      val digits = x(1).getValue.toInt
       val exp = math.pow(10, digits)
       val result = math.round(num * exp) / exp
-      x.head match {
+      x.head.getValue match {
         case e: UnitNumber => new UnitNumber(result, e.unitFraction)
         case _ => new DoubleConstant(result)
       }
 
     }),
     "formatcurrency" -> FEntry(List(ParDes(DataType.undefined)), x => {
-      StringConstant("%,.2f €".format(x.head.toDouble))
+      StringConstant("%,.2f €".format(x.head.getValue.toDouble))
     }),
     "numberformat" -> FEntry(List(ParDes(DataType.undefined), ParDes(DataType.StringTyp)), x => {
-      val num = x.head.toDouble
-      val form = x(1).toString
+      val num = x.head.getValue.toDouble
+      val form = x(1).getValue.toString
       //val exp=math.pow(10,digits)
       try
-        StringConstant(form.format(num) + (x.head match {
+        StringConstant(form.format(num) + (x.head.getValue match {
           case ut: UnitNumber => " " + ut.unitFraction.toString
           case _ => ""
         }))
@@ -82,20 +89,20 @@ class CommonFuncMan extends FunctionManager {
     }),
     "concat" -> FEntry(Nil, x => {
       if (x.size < 2) StringConstant("2 Parameter erforderlich " + x.size)
-      StringConstant(x.map(_.toString).mkString)
+      StringConstant(x.map(_.getValue.toString).mkString)
     }),
     "lookupover" -> FEntry(Nil, x => {
-      val num = x.head.toDouble
+      val num = x.head.getValue.toDouble
       if (x.size < 3 || x.size % 2 == 0) StringConstant("Falsche Anzahl Parameter")
       else {
-        x.drop(1).grouped(2).find { case List(key, _) => key.toDouble >= num } match {
-          case Some(List(_, value)) => value.convertTo(DataType.DoubleTyp)
+        x.drop(1).grouped(2).find { case List(key, _) => key.getValue.toDouble >= num } match {
+          case Some(List(_, value)) => value.getValue.convertTo(DataType.DoubleTyp)
           case _ => StringConstant("Fehler")
         }
       }
     }),
     "double" -> FEntry(List(ParDes(DataType.undefined)), x =>
-      new DoubleConstant(x.head.toDouble)
+      new DoubleConstant(x.head.getValue.toDouble)
     )
   )
 
@@ -141,7 +148,7 @@ class CommonFuncMan extends FunctionManager {
 
   registerVariableResolver(new MathVariableResolver)
 
-  def getFunctionValue(module: Option[String], funcName: String, paramValues: List[Constant]): Constant = {
+  def getFunctionValue(module: Option[String], funcName: String, paramValues: List[Expression]): Constant = {
     val uname = funcName.toLowerCase
     //System.out.println("call funcman :"+funcName+" "+paramValues)
     if (funcList.contains(uname)) {
@@ -153,17 +160,17 @@ class CommonFuncMan extends FunctionManager {
       }
       entry.func(paramValues)
     }
-    else throw new IllegalArgumentException("Function " + uname + " not found")
+    else throw new IllegalArgumentException("Funktion " + uname + " ist unbekannt")
   }
 
-  protected def checkParameters(param: List[Constant], paramDesc: List[ParDes]): Option[String] = {
+  protected def checkParameters(param: List[Expression], paramDesc: List[ParDes]): Option[String] = {
     //System.out.println("check params "+param+" "+paramDesc)
     if (paramDesc.isEmpty) None // no check
     else if (paramDesc.size != param.size) Some("Wrong number of parameters " + param.size + ", expected:" + paramDesc.size)
-    else param.indices.find(i => (paramDesc(i).typ != DataType.undefined) && (!DataType.isCompatible(param(i).getType, paramDesc(i).typ))) match {
+    else /*param.indices.find(i => (paramDesc(i).typ != DataType.undefined) && (!DataType.isCompatible(param(i).getType, paramDesc(i).typ))) match {
       case Some(i) => Some("Wrong " + i + ". function parameter type " + param(i).getType + ", expected Type:" + paramDesc(i).typ)
-      case _ => None
-    }
+      case _ =>*/ None
+    //}
 
   }
 
@@ -181,7 +188,7 @@ class CommonFuncMan extends FunctionManager {
 
 // *********************************** HELPER CLASSES ********************************************
 
-case class FEntry(params: List[ParDes], func: List[Constant] => Constant)
+case class FEntry(params: List[ParDes], func: List[Expression] => Constant)
 
 
 // parameter description

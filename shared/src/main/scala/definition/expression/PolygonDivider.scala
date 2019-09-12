@@ -1,5 +1,7 @@
 package definition.expression
 
+import util.Log
+
 import scala.collection.immutable.SortedSet
 import scala.util.control.NonFatal
 
@@ -176,7 +178,7 @@ object RectPart {
   def unapply(pl: PointList): Option[(PartArea, Seq[PointList])] = if (pl.points.size >= 4) {
     def pointList = pl
 
-    val fullAngles = Polygon.ringLoop(pointList.cosAngles.zip(pointList.points.indices.iterator).toSeq).toList
+    val fullAngles: List[(Double, Int)] = Polygon.ringLoop(pointList.cosAngles.zip(pointList.points.indices.iterator).toSeq).toList
     PolygonDivider.foreachPair[(Double, Int)](fullAngles, (el: (Double, Int)) => {PolygonDivider.angleIsRight(el._1, pl.isClockWise)}, (first, second) => {
       val firstIx = first._2
       val secondIx = second._2
@@ -189,7 +191,7 @@ object RectPart {
       val testArea = new Polygon(Nil, Seq(testRect))
       val allowedPoints = Seq(firstEdge.p1, firstEdge.p2, thirdEdge.p1, thirdEdge.p2)
       val otherPointsInRect = pointList.points.filter(p => !allowedPoints.contains(p) && testArea.contains(p))
-      val result = if (otherPointsInRect.isEmpty) Some((testArea, deltaVect)) else {
+      val result: Option[(Polygon, VectorConstant)] = if (otherPointsInRect.isEmpty) Some((testArea, deltaVect)) else {
         val line = pointList.edges(firstIx).toLine3D
         val minDistance = otherPointsInRect.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min
         if (minDistance <= 0) None
@@ -199,8 +201,8 @@ object RectPart {
         }
       }
       for ((cutArea, deltVect) <- result; if StrictMath.abs(cutArea.getAreaValue) > Polygon.treshold) {
-        val restArea = thisArea.subtract(cutArea)
-        val restList = if (!pointList.isClockWise) restArea.pathList.map(_.reverse) else restArea.pathList
+        val restArea: Polygon = thisArea.subtract(cutArea)
+        val restList: Seq[PointList] = if (!pointList.isClockWise) restArea.pathList.map(_.reverse) else restArea.pathList
         return Some((new RectanglePartArea(cutArea.pathList.head, Seq((pointList.points(secondIx) + deltVect,
           pointList.points(firstIx) + deltVect))), restList))
       }
@@ -218,9 +220,9 @@ object TrapezPart {
     def zippedAngles: Iterator[(Double, Int)]#GroupedIterator[(Double, Int)] = Polygon.ringLoop(angles.zip(pointList.points.indices)).sliding(3)
 
     // check for Trapezes with one rect angle
-    println("Angles:")
-    println(angles.zip(pointList.points.indices).mkString("| "))
-    println("Edges: \n"+pointList.edges.mkString(" \n "))
+    //println("Trapez Angles:")
+    //println(angles.zip(pointList.points.indices).mkString("| "))
+    //println("Edges: \n"+pointList.edges.mkString(" \n "))
     zippedAngles.foreach {
       case Seq((firstAngle, fix), (middleAngle, mix), (lastAngle, lix)) =>
         if (PolygonDivider.angleIsRight(middleAngle, clockWise = false) && (firstAngle > 0 || lastAngle > 0)) {
@@ -264,9 +266,11 @@ object TrapezPart {
                              Some(PointList(Seq(testTrap.points.head, testTrap.points(1), pu1, pu2)))
                            }
                          }
-            for (cutTrap <- result)
+            for (cutTrap <- result) {
+              //println("found rect Trapez "+cutTrap)
               return Some((new RectTrapezPartArea(if (pl.isClockWise) cutTrap.reverse else cutTrap, if (firstAngle > 0) Seq(1, 2) else Seq(3, 0),
                 Seq((cutTrap.points(2), cutTrap.points(3)))), createRestList(pointList, cutTrap, pl.isClockWise)))
+            }
           }
         }
     }
@@ -298,9 +302,11 @@ object TrapezPart {
                          Some(PointList(Seq(firstEdge.p2, thirdEdge.p1, line.p2 + newDeltaVect, line.p1 + newDeltaVect)))
                        }
                      }
-        for (cutTrap <- result)
+        for (cutTrap <- result) {
+          //println("found parallel Trapez "+cutTrap)
           return Some((new TrapezPartArea(if (pl.isClockWise) cutTrap.reverse else cutTrap, 1,
             Seq((cutTrap.points(2), cutTrap.points(3)))), createRestList(pointList, cutTrap, pl.isClockWise)))
+        }
       } //else println("are too small")
     }
 
@@ -337,6 +343,7 @@ object TrapezPart {
       if (minDistance > 0) {
         val newDeltaVect = delta.unit * minDistance
         val newTrap = PointList(Seq(trap.points.head, trap.points(1), line.pos + line.dir + newDeltaVect, line.pos + newDeltaVect))
+        //println("trapez with other point "+newTrap)
         return Some((new TrapezPartArea(if (pl.isClockWise) newTrap.reverse else newTrap, 1,
           Seq((line.pos + line.dir + newDeltaVect, line.pos + newDeltaVect))), createRestList(pointList, newTrap, pl.isClockWise)))
       }
@@ -349,7 +356,7 @@ object TrapezPart {
           val testTri = PointList(Seq(firstEdge.p1, firstEdge.p2, pointList.points(lix)))
           val testArea = new Polygon(Nil, Seq(testTri))
           if (!pointList.points.exists(p => !testTri.points.contains(p) && testArea.contains(p))) {
-
+            //println("Trap Triangle "+testTri)
             return Some((new TrianglePartArea(if (pl.isClockWise) testTri.reverse else testTri, Seq((firstEdge.p1, pointList.points(lix)))),
               createRestList(pointList, testTri, pl.isClockWise)))
           }
@@ -374,6 +381,14 @@ object PolygonDivider {
 
   val meterFraction = UnitFraction(SortedSet(new UnitElem("m", 1))(ordering), SortedSet[UnitElem]()(ordering))
 
+
+  /**
+    * Calls Exec Func on each pair (ix1,ix2) of the list when checkFunc is true for both ix1 and ix2
+    * @param list the list of items
+    * @param checkFunc the condition to be met by ix1 and ix2
+    * @param execFunc the function to call
+    * @tparam T
+    */
   @annotation.tailrec def foreachPair[T](list: List[T], checkFunc: T => Boolean, execFunc: (T, T) => Unit): Unit = list match {
     case Nil =>
     case _ :: Nil =>
@@ -415,18 +430,27 @@ object PolygonDivider {
     if (StrictMath.abs(pointList.getArea) < Polygon.treshold) Seq.empty
     //println("Divide Area pointList.size:"+pointList.points.size+" clockwise:"+pointList.isClockWise)
     else pointList match {
-      case FourPointsPartArea(fourPoints) => List(fourPoints)
-      case TrianglePartArea(triangle) => List(triangle)
-      case restList =>
+      case FourPointsPartArea(fourPoints: PartArea) => List(fourPoints)
+      case TrianglePartArea(triangle: PartArea) => List(triangle)
+      case restList: PointList =>
         if (StrictMath.abs(restList.getArea) < Polygon.treshold) Seq.empty
         else {
-          val (foundElem, arestList) = pointList match {
-            case RectPart(rectangle, restList1) => (rectangle, restList1)
+          val (foundElem: PartArea, arestList: Seq[PointList]) = restList match {
+            case RectPart(rectangle, restList1) =>  (rectangle, restList1)
             case TrapezPart(trapez, restList1) => (trapez, restList1)
             case rest => util.Log.e("No match " + rest.points.mkString("|")); return Seq(NO_AREA_MATCH)
           }
-          foundElem +: arestList.flatMap(pList => _divideArea(pList.removeDoublePoints().removeStraightEdges()))
+          foundElem +: arestList.flatMap((pList: PointList) => {
+            val newPointList=pList.removeDoublePoints().removeStraightEdges()
+            if(newPointList.points==pointList.points ) {
+              Log.e("Divide Area indentical Pointlist\n\r"+pointList+"\n\r newList: \n\r"+newPointList)
+              Seq(NO_AREA_MATCH)
+            }
+            else _divideArea(newPointList)})
         }
     }
-  } catch {case NonFatal(e) => println(e.toString + " " + e.getStackTrace.take(20).mkString("\n")); Seq.empty}
+  } catch {
+      case NonFatal(e) => println(e.toString + " " + e.getStackTrace.take(20).mkString("\n")); Seq.empty
+      case fatal:Throwable=> Log.e("Fatal Error divide Area:"+fatal,fatal);Seq.empty
+  }
 }

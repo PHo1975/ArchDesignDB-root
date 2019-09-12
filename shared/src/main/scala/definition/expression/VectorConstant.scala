@@ -366,6 +366,13 @@ object VectorConstant {
 
   def midPoint(p1: VectorConstant, p2: VectorConstant) = new VectorConstant((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2)
 
+  /**
+    * Get Cos Angle between 3 points
+    * @param p1 1. point
+    * @param p2 2. point
+    * @param p3 3. point
+    * @return angle between points in cos
+    */
   def getAngle(p1: VectorConstant, p2: VectorConstant, p3: VectorConstant): Double = (p2 - p1).cosBetween(p3 - p2)
 
   def min(a: VectorConstant, b: VectorConstant): VectorConstant = if (a < b) a else b

@@ -14,7 +14,7 @@ import scala.xml.Elem
   */
 case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Seq[(String, Constant)]) {
   lazy val outName: String = getOutName
-  val formName: String = ""
+  var formName: String = ""
 
   def getOutName: String = {
     val papers = paperSetting.split('|')

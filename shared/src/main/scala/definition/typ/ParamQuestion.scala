@@ -56,7 +56,7 @@ trait PanelQuestion extends ParamQuestion {
 
 
 case class PanelRemoteQuestion(panelClass: String) extends PanelQuestion {
-  lazy val panel: CustomPanel = Class.forName(panelClass).newInstance().asInstanceOf[CustomPanel]
+  lazy val panel: CustomPanel = Class.forName(panelClass).getConstructor().newInstance().asInstanceOf[CustomPanel]
 
   def toXML: scala.xml.Node = {<PanelQuestion name={panelClass}></PanelQuestion>}
 

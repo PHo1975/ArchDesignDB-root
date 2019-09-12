@@ -19,6 +19,7 @@ case class ParserError(_message: String, offset: Int) extends ParserResult {
       if (_message.charAt(41) == ')') "öffnende Klammer fehlt"
       else "Unerwartetes Zeichen '" + _message.charAt(41) + "'"
     } else if (_message.contains("""`)' expected""")) "Schliessende Klammer fehlt"
+    else if (_message.contains("""`|' expected""")) "Rechenzeichen fehlt"
     else if (_message.contains("""`(' expected""")) "öffnende Klammer fehlt, oder doppelte Rechenzeichen"
     else if (_message.contains("""`_' expected but end""")) "Nur Eingabe von Zahl möglich"
     else _message
@@ -74,6 +75,8 @@ class StringParser extends JavaTokenParsers {
 
   def variableNamePart: Parser[String] = """[a-zA-Z0-9]+""".r
 
+  def myIdent:Parser[String] = """[a-zA-Z][a-zA-Z0-9]+""".r
+
   def stringVariable: Parser[String] = """["][^"]*["]""".r
 
   def todayConstant: Parser[String] = TodayConstant.todayString.r
@@ -82,6 +85,8 @@ class StringParser extends JavaTokenParsers {
     case first ~ list =>
       list.foldLeft(first)((res, value) => BinaryOperation(res, BinOperator.getOp(value._1.charAt(0)), value._2))
   }
+
+  //def nonWhiteComp=comp
 
   def nonWhiteComp: Parser[Expression] = whiteSpace ~> comp <~ whiteSpace ||| whiteSpace ~> comp ||| comp <~ whiteSpace ||| comp
 
@@ -132,23 +137,29 @@ class StringParser extends JavaTokenParsers {
       val doubleVal = y.replace(".", "").replace(',', '.').toDouble
       if (StringParser.isIntValue(doubleVal)) IntConstant(doubleVal.toInt) else DoubleConstant(doubleVal)
     } | nullParser |
+    function |
     doubleNumber ^^ { y => DoubleConstant(y.replace(',', '.').toDouble) } |
     intNumber ^^ { x => IntConstant(x.toInt) } | trueVal | falseVal |
     stringVariable ^^ { s => StringConstant(s.substring(1, s.length - 1)) } |
-    fieldRef | function | variable | collFunction | parentFieldRef | vector | todayConstant ^^ { _ => TodayConstant } |
+    fieldRef |  variable | collFunction | parentFieldRef | vector | todayConstant ^^ { _ => TodayConstant } |
     ("(" ~> nonWhiteComp <~ ")") | failure("Zahl oder Wert fehlt")
 
   def nonWhiteElem: Parser[Expression] = whiteSpace ~> elem <~ whiteSpace ||| whiteSpace ~> elem ||| elem <~ whiteSpace ||| elem
 
-  def paramList: Parser[List[Expression]] =
-    ((nonWhiteComp ~ rep(";" ~> nonWhiteComp)) ^^ { case ex ~ list => ex :: list }) |
-      (nonWhiteComp ^^ (List(_)))
+  //def nonWhiteElem=elem
+
+  def paramList: Parser[List[Expression]] = {
+    ("(" ~> repsep(nonWhiteComp, ";") <~ ")") ^^ (list => list)
+  }
+    /*((nonWhiteComp ~ rep(";" ~> nonWhiteComp)) ^^ { case ex ~ list => ex :: list }) |
+      (nonWhiteComp ^^ (List(_)))*/
 
   def currValue: Parser[Expression] =
     (someNumber ~ currencySymbols) ^^ { case a ~ _ => CurrencyConstant(math.round(a.replace(',', '.').toDouble * 100L)) }
 
-  def function: Parser[Expression] =
-    (ident ~ ("(" ~> paramList <~ ")")) ^^ { case name ~ list => FunctionCall(None, name, list) }
+  /*def function: Parser[Expression] =
+    (myIdent ~ ("(" ~> paramList <~ ")")) ^^ { case name ~ list => FunctionCall(None, name, list) }*/
+  def function: Parser[Expression]= (myIdent ~ paramList) ^^ {case name ~ list => FunctionCall(None, name,list)}
 
   def trueVal: Parser[Expression] = "true|TRUE".r ^^ (_ => BoolConstant(true))
 
@@ -156,7 +167,7 @@ class StringParser extends JavaTokenParsers {
 
   def variable: Parser[Expression] = ((variableNamePart <~ "_") ~ variableNamePart) ^^ { case module ~ name => Variable(module, name) }
 
-  def collFunction: Parser[Expression] = (("#" ~> ident <~ "(") ~ (numberParam <~ ";") ~ (numberParam <~ ";") ~ (numberParam <~ ")")) ^^ {
+  def collFunction: Parser[Expression] = (("#" ~> myIdent <~ "(") ~ (numberParam <~ ";") ~ (numberParam <~ ";") ~ (numberParam <~ ")")) ^^ {
     case name ~ propField ~ childType ~ childField =>
       CollectingFuncCall(name, propField.trim.toByte, childType.trim.toInt, childField.trim.toByte)
   }
@@ -171,12 +182,16 @@ class StringParser extends JavaTokenParsers {
 
 
 object StringParser extends StringParser {
+
   def isIntValue(double: Double): Boolean = double == math.floor(double)
 
   def parse(text: String, expectedType: DataType.Value = DataType.undefined): ParserResult = {
     if (text.length == 0) Expression.generateNullConstant(expectedType)
     else {
+      //val time=System.currentTimeMillis()
       val result = parseAll(nonWhiteComp, text)
+      //System.out.println("parse '"+text+"' "+expectedType+" time:"+(System.currentTimeMillis()-time))
+      //System.out.println("Stack: "+Thread.currentThread().getStackTrace.drop(1).take(5).mkString("\n "))
       result match {
         case Success(x, _) => x
         case NoSuccess(err, next) =>

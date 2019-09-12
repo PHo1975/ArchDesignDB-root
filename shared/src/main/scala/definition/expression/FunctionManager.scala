@@ -8,7 +8,7 @@ package definition.expression
   */
 trait FunctionManager {
 
-  def getFunctionValue(module: Option[String], funcName: String, paramValues: List[Constant]): Constant
+  def getFunctionValue(module: Option[String], funcName: String, paramValues: List[Expression]): Constant
 
   def getVariableValue(module: String, varName: String): Constant
 

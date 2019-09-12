@@ -16,9 +16,8 @@ case class FunctionCall(module: Option[String], name: String, params: List[Expre
   def getType: DataType.Value = DataType.FunctionCall
 
   def getValue: Constant = {
-    val paramValues: List[Constant] = for (param <- params) yield param.getValue
     if (FunctionManager.get == null) {util.Log.e("No FunctionManager defined !"); EMPTY_EX}
-    else FunctionManager.get.getFunctionValue(module, name, paramValues)
+    else FunctionManager.get.getFunctionValue(module, name, params)
   }
 
   override def createCopy(): Expression = new FunctionCall(module, name, params.map(_.createCopy()))

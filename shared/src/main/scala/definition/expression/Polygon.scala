@@ -185,7 +185,9 @@ case class PointList(points: Seq[VectorConstant]) {
   def removeStraightEdges(): PointList = {
     val straightEdges = angles.zip(points.indices.iterator).filter { case (angle, _) => StrictMath.abs(StrictMath.abs(angle) - 1d) < Polygon.treshold }.toSeq
     if (straightEdges.isEmpty) this
-    else PointList(points.zipWithIndex.filterNot { case (_, pix) => straightEdges.exists { case (_, aix) => aix == pix } }.map(_._1))
+    else PointList( points.zipWithIndex.filterNot {
+      case (_, pix) => straightEdges.exists { case (_, aix) => aix == pix }
+    }.map(_._1))
   }
 
   def angles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case List(p1, p2, p3) =>
@@ -372,6 +374,21 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
 
   def setArea(newArea: Area): Polygon = new Polygon(parents, Polygon.areaToPoints(newArea))
 
+  def iterateAllPoints:Iterator[VectorConstant]= if(pathList.isEmpty) Nil.iterator else
+    new Iterator[VectorConstant] {
+      var currentPointList=0
+      var currentIterator:Iterator[VectorConstant]=pathList.head.points.iterator
+      override def hasNext: Boolean = if (currentIterator.hasNext) true
+      else {
+        currentPointList+=1
+        if(currentPointList < pathList.size ) {
+          currentIterator=pathList(currentPointList).points.iterator
+          currentIterator.hasNext
+        } else false
+      }
+
+      override def next(): VectorConstant = currentIterator.next
+    }
 
 }
 

@@ -51,13 +51,15 @@ class ClipPrintElement(nbounds: Rectangle2D.Float) extends PrintElement(nbounds)
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     ctx.oldClip = Option(g.getClip)
     g.clip(new Rectangle2D.Float(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.width), ctx.toUnit(bounds.height)))
+    //println("clip old:"+ctx.oldClip.get+"\nnew:"+g.getClip)
   }
 }
 
 
 class RestoreClipPrintElement() extends NoBoundsPrintElement(PrintElType.ClipRestoreElement) {
-  def print(g: Graphics2D, ctx: RenderContext): Unit = for (cl <- ctx.oldClip) {
-    g.setClip(cl)
+  def print(g: Graphics2D, ctx: RenderContext): Unit = ctx.oldClip match {
+    case Some(clip)=> g.setClip(clip); //println("restore Clip "+clip)
+    case None => g.setClip(null); println("Restore Clip no old Clip")
   }
 }
 
@@ -221,7 +223,7 @@ class TextPrintElement(nbounds: Rectangle2D.Float, val text: String, fontStyle: 
 
 class PlaceHolderElement(nbounds: Rectangle2D.Float, val name: String, fontStyle: String)
   extends ATextPrintElement(nbounds, fontStyle) {
-  val value: String = ""
+  var value: String = ""
 
   def text: String = value
 }
@@ -305,6 +307,7 @@ case class RectPrintElement(nbounds: Rectangle2D.Float, thick: Float, lineStyle:
   def getElementType:PrintElType.Value = PrintElType.Rect
 
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
+    //println("print rect clip:"+g.getClip+" Stroke:"+thick)
     PrintElement.printRect.setRect(ctx.toUnit(bounds.x), ctx.toUnit(bounds.y), ctx.toUnit(bounds.width), ctx.toUnit(bounds.height))
     g.setColor(borderColor)
     g.setStroke(ctx.getStroke(thick, lineStyle))

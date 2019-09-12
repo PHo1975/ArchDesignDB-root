@@ -73,6 +73,16 @@ case class UnitFraction(numerator: SortedSet[UnitElem], denominator: SortedSet[U
 
   def pot(value: Double) = UnitFraction(setFactory ++ numerator.map(_.mult(value)), setFactory ++ denominator.map(_.mult(value)))
 
+  def sqrt()={
+    val num=setFactory()
+    val den=setFactory()
+    for(n<-numerator) (if(n.exponent %2 ==0) num+= new UnitElem(n.name,(n.exponent /2).toByte)
+              else throw new IllegalArgumentException("sqrt numerator ="+n ))
+    for(d<-denominator) (if(d.exponent % 2 ==0) den+=new UnitElem(d.name,(d.exponent/2).toByte )
+              else throw new IllegalArgumentException("sqrt denominator "+d))
+    UnitFraction(num,den)
+  }
+
   override def toString: String = if (numerator.isEmpty) {if (denominator.isEmpty) "" else "/" + denominator.mkString("·")}
                                   else numerator.mkString("·") + (if (denominator.isEmpty) "" else "/" + denominator.mkString("·"))
 
