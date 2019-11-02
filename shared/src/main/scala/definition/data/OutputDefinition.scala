@@ -8,11 +8,12 @@ import definition.typ.{DataType, SystemSettings}
 
 import scala.xml.Elem
 
+case class ResultElement(paramName:String,result:Constant)
 
 /**
   *
   */
-case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Seq[(String, Constant)]) {
+case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Seq[ResultElement]) {
   lazy val outName: String = getOutName
   var formName: String = ""
 
@@ -32,11 +33,11 @@ case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSe
     {paramValues.map(paramToXML)}
   </OutDef>
 
-  def paramToXML(p: (String, Constant)): Elem = <PValue name={p._1} value={p._2.getTerm}/>
+  def paramToXML(p: ResultElement): Elem = <PValue name={p.paramName} value={p.result.getTerm}/>
 
   override def toString: String = outName
 
-  def paramString: String = paramValues.map { case (pname, pvalue) =>
+  def paramString: String = paramValues.map { case ResultElement(pname, pvalue) =>
     if (pvalue.getType == DataType.BoolTyp) (if (pvalue.toBoolean) "mit " else "ohne ") + pname
     else if (pvalue.isNullConstant) "" else pname + "=" + pvalue
   }.mkString("; ")
@@ -49,7 +50,7 @@ object OutputDefinition {
 
   def apply(data: InstanceData, paramChildren: Seq[InstanceData]): OutputDefinition = {
     if (data.ref.typ != odefType) throw new IllegalArgumentException("Instance " + data + " is not an Outputdef")
-    val paramList = paramChildren.map(c => (c.fieldValue.head.toString, c.fieldValue(1)))
+    val paramList = paramChildren.map(c =>ResultElement(c.fieldValue.head.toString, c.fieldValue(1)))
     //println("outputdef paramList types :"+paramList.map(_._2.getType))
     new OutputDefinition(data.ref.instance, data.fieldValue.head.toInt, data.fieldValue(1).toString, data.fieldValue(2).toString, data.fieldValue(3).toBoolean,
       paramList)
@@ -60,9 +61,9 @@ object OutputDefinition {
       (node \ "@portrait").text == "1", (node \\ "PValue").map(paramFromXML))
   }
 
-  def paramFromXML(node: scala.xml.Node): (String, Constant) ={
+  def paramFromXML(node: scala.xml.Node): ResultElement ={
     val text=(node \ "@value").text.replace("\"", "")
-    ((node \ "@name").text, (StringParser.parse(text) match {
+    ResultElement((node \ "@name").text, (StringParser.parse(text) match {
       case ex: Expression => ex
       case _ : ParserError =>  StringConstant(text)
     }).getValue)
