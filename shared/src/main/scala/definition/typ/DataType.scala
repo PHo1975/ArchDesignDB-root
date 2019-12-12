@@ -33,6 +33,7 @@ object DataType extends Enumeration {
   val PolygonTyp = Value("Polygon") //17
   val VariableTyp = Value("Variable") //18
   val UnitNumberTyp = Value("UnitNumber") //19
+  val VectorBlockRef = Value("VectorBlockRef") //20
 
   def isCompatible(one: Value, other: Value): Boolean = {
     if (one == undefined || other == undefined) true

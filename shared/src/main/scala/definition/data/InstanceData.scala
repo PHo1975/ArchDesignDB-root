@@ -229,6 +229,8 @@ object InstanceData {
     ownArray
   }
 
+  def emptyInstance(nref:Reference)=new InstanceData(nref,IndexedSeq.empty,Array.empty,Seq.empty,false)
+
 
 }
 
@@ -278,5 +280,7 @@ object OwnerRefList {
 
 
 object EMPTY_OWNERREF extends OwnerReference(0, EMPTY_REFERENCE)
-
+object EMPTY_INSTANCE extends InstanceData(EMPTY_REFERENCE,IndexedSeq.empty,Array.empty,Seq.empty,false){
+  override def getObjectClass: AbstractObjectClass = UNDEFINED_CLASS
+}
 

@@ -13,20 +13,9 @@
         <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.4/jars/scalajs-compiler_2.12.4-0.6.21.jar" />
       </plugins>
     </profile>
-    <profile name="sbt 1" modules="root">
+    <profile name="sbt 3" modules="root,wurzel">
       <plugins>
-        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.4/jars/scalajs-compiler_2.12.4-0.6.22.jar" />
-      </plugins>
-    </profile>
-    <profile name="sbt 2" modules="pitJS,pitJVM">
-      <option name="deprecationWarnings" value="true" />
-      <plugins>
-        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.4/jars/scalajs-compiler_2.12.4-0.6.22.jar" />
-      </plugins>
-    </profile>
-    <profile name="sbt 3" modules="wurzel">
-      <plugins>
-        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.9/jars/scalajs-compiler_2.12.9-0.6.28.jar" />
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.10/jars/scalajs-compiler_2.12.10-0.6.31.jar" />
       </plugins>
     </profile>
     <profile name="sbt 4" modules=".js-dbdef,.jvm-dbdef">
@@ -35,10 +24,10 @@
         <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.4/jars/scalajs-compiler_2.12.4-0.6.27.jar" />
       </plugins>
     </profile>
-    <profile name="sbt 5" modules="dbdef,jvm-dbdef">
+    <profile name="sbt 5" modules="dbdef,jvm-dbdef,pitJS,pitJVM">
       <option name="deprecationWarnings" value="true" />
       <plugins>
-        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.9/jars/scalajs-compiler_2.12.9-0.6.28.jar" />
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-compiler_2.12.10/jars/scalajs-compiler_2.12.10-0.6.31.jar" />
       </plugins>
     </profile>
   </component>

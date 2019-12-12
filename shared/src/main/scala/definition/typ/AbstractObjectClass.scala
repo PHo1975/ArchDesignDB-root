@@ -22,6 +22,7 @@ trait AbstractObjectClass {
   lazy val formatFields: immutable.IndexedSeq[Int] = fields.indices.filter(ix => fieldSetting(ix).formatField)
   val fields = new ArrayBuffer[AbstractFieldDefinition]() // list of inherited fields from the super class
   val propFields = new ArrayBuffer[PropertyFieldDefinition]()
+  val blockPropFields=new ArrayBuffer[BlockPropertyFieldDefinition]()
   val superClassIDs: mutable.LinkedHashSet[Int] = mutable.LinkedHashSet()
   val actions: mutable.LinkedHashMap[String, ActionTrait] = mutable.LinkedHashMap[String, ActionTrait]()
   val fieldEditors: mutable.LinkedHashSet[String] = mutable.LinkedHashSet[String]()
@@ -59,6 +60,7 @@ trait AbstractObjectClass {
       superClassIDs ++= superClass.superClassIDs
       copySuperClassFields(superClass)
       propFields ++= superClass.propFields
+      blockPropFields++=superClass.blockPropFields
       actions ++= superClass.actions
       fieldEditors ++= superClass.fieldEditors
     }
@@ -70,6 +72,7 @@ trait AbstractObjectClass {
       fieldSettingMap(s.fieldNr) = s
     }
     propFields ++= ownPropFields
+    blockPropFields++=ownBlockPropFields
     //if(ownActions==null) util.Log.e("ownActions==null in Class "+id+" name "+name)
     ownActions.foreach(a => if (a == null) util.Log.e("action == nul in class " + id + " name " + name) else actions(a.name) = a)
     hasResolved = true
@@ -113,6 +116,8 @@ trait AbstractObjectClass {
     for (fs <- ownFieldSettings) CollUtils.writeToStream(out, fs)
     out.writeInt(ownPropFields.size)
     for (op <- ownPropFields) CollUtils.writeToStream(out, op)
+    out.writeInt(ownBlockPropFields.size)
+    for(bp <- ownBlockPropFields) CollUtils.writeToStream(out,bp)
     out.writeInt(ownActions.size)
     for (ac <- ownActions) CollUtils.writeToStream(out, ac)
     out.writeInt(superClasses.size)
@@ -125,6 +130,8 @@ trait AbstractObjectClass {
   protected def ownFields: Seq[AbstractFieldDefinition]
 
   protected def ownPropFields: Seq[PropertyFieldDefinition]
+
+  protected def ownBlockPropFields: Seq[BlockPropertyFieldDefinition]
 
   protected def ownActions: Iterable[ActionTrait]
 
@@ -158,6 +165,8 @@ object UNDEFINED_CLASS extends AbstractObjectClass {
   override protected def ownFields: Seq[AbstractFieldDefinition] = Seq.empty
 
   override protected def ownPropFields: Seq[PropertyFieldDefinition] = Seq.empty
+
+  override protected def ownBlockPropFields: Seq[BlockPropertyFieldDefinition] = Seq.empty
 
   override protected def ownActions: Iterable[ActionTrait] = Seq.empty
 

@@ -16,6 +16,8 @@ abstract class AllClasses[B <: AbstractObjectClass] /*(node: scala.xml.Node)*/ {
 
   def classList: collection.Map[Int, B]
 
+  def blockClassList:collection.Map[Int,BlockClass]
+
   // get the Map object containing all classes
   def getClassList: collection.Map[Int, B] = classList
 
@@ -26,6 +28,8 @@ abstract class AllClasses[B <: AbstractObjectClass] /*(node: scala.xml.Node)*/ {
 
   // find a class by Name
   def getClassByName(aname: String): Option[AbstractObjectClass] = classList.valuesIterator.find(_.name == aname)
+
+  def getBlockClassByName(aname:String): Option[BlockClass] =blockClassList.valuesIterator.find(_.name==aname)
 
   // resolves all superfields from all classes. Will be called after reading all classes from XLM
   def resolveFields(): Unit = for (cl <- classList.valuesIterator)

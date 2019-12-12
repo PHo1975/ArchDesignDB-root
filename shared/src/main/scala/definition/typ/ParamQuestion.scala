@@ -6,7 +6,7 @@ package definition.typ
 import java.io.DataInput
 
 import definition.data.Referencable
-import util.StoreClassInfo
+import util.{StoreClassInfo, StringUtils}
 
 
 /** Questions that Actions ask for to get their parameters
@@ -65,21 +65,26 @@ case class PanelRemoteQuestion(panelClass: String) extends PanelQuestion {
   def classID = 2
 }
 
+object ModuleType extends Enumeration {
+  val Graph=Value("Graph")
+  val Plot=Value("Plot")
+  val Print=Value("Print")
+}
 
-case class CommandQuestion(moduleName: String, commandName: String) extends ParamQuestion {
+case class CommandQuestion(module: ModuleType.Value, commandName: String) extends ParamQuestion {
   def repeat = false
 
   def classID = 3
 
   def toXML: scala.xml.Node = {
-      <CommandQuestion moduleName={moduleName} command={commandName}/>
+      <CommandQuestion module={module.id.toString} command={commandName}/>
   }
 }
 
 
-case class XMLQuestion(moduleName: String, customData: Seq[scala.xml.Node]) extends ParamQuestion {
+case class XMLQuestion(module: ModuleType.Value, customData: Seq[scala.xml.Node]) extends ParamQuestion {
   def toXML: scala.xml.Node = {
-    <XMLQuestion moduleName={moduleName}>
+    <XMLQuestion moduleName={module.id.toString}>
       {customData}
     </XMLQuestion>
   }
@@ -101,11 +106,14 @@ object ParamQuestion {
         if (dnode.isEmpty) {
           val dnode = superNode \\ "CommandQuestion"
           if (dnode.isEmpty) None
-          else Some(CommandQuestion((dnode \ "@moduleName").text, (dnode \ "@command").text))
+          else Some(CommandQuestion(ModuleType((dnode \ "@module").text.toInt), (dnode \ "@command").text))
         }
         else Some(PanelRemoteQuestion((dnode \ "@name").text))
       }
-      else Some(XMLQuestion((dnode \ "@moduleName").text, dnode.head.child))
+      else {
+        val moduleText=(dnode \ "@module").text
+        Some(XMLQuestion(if(moduleText.trim.size==0)ModuleType.Print else ModuleType(StringUtils.stringToInt(moduleText)), dnode.head.child))
+      }
     }
     else {
       val subNode = dnode.head
@@ -121,8 +129,8 @@ object ParamQuestion {
     in.readInt() match {
       case 1 => DialogQuestion(in.readUTF, for (_ <- 0 until in.readInt) yield AnswerDefinition.fromStream(in), in.readBoolean(), in.readUTF())
       case 2 => PanelRemoteQuestion(in.readUTF)
-      case 3 => CommandQuestion(in.readUTF, in.readUTF)
-      case 4 => XMLQuestion(in.readUTF, null)
+      case 3 => CommandQuestion(ModuleType(in.readInt), in.readUTF)
+      case 4 => XMLQuestion(ModuleType(in.readInt), null)
     }
   }
 

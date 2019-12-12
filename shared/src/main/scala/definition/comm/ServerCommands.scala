@@ -27,6 +27,8 @@ object ServerCommands extends Enumeration {
   val sendGeneratedData = Value("Send generated Data")
   val sendCalendarData = Value("CalendarData")
   val sendSearchResult = Value("SendSearchResult")
+  val acceptBlockSubscription=Value("Accept block subscription")
+  //val sendBlockSubscriptionNotification=Value("send block subscription notification")
 }
 
 
