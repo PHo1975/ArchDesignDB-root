@@ -10,7 +10,8 @@ lazy val root= (project in file (".")).
       "org.scala-lang.modules" %% "scala-xml" % "1.2.0")
   ).enablePlugins {ScalaJSPlugin}
 
-lazy val pit = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Full).in(file(".")).
+lazy val pit = _root_.sbtcrossproject.CrossPlugin.autoImport.crossProject(JSPlatform, JVMPlatform).crossType(
+  _root_.sbtcrossproject.CrossType.Full).in(file(".")).
   settings(
     name:="dbdef",
     version:="0.9-SNAPSHOT",
