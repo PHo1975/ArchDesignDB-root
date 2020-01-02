@@ -7,7 +7,7 @@ import definition.typ.DataType
 import util.Log
 
 import scala.collection.immutable.TreeSet
-import scala.collection.{SortedSet, mutable}
+import scala.collection.{SortedSet, immutable}
 import scala.util.control.NonFatal
 
 class UnitElem(val name: String, val exponent: Byte) extends Serializable {
@@ -71,15 +71,15 @@ case class UnitFraction(numerator: SortedSet[UnitElem], denominator: SortedSet[U
 
   def div(other: UnitFraction): UnitFraction = UnitFraction(addList(numerator, other.denominator), addList(denominator, other.numerator)).trim
 
-  def pot(value: Double) = UnitFraction(setFactory ++ numerator.map(_.mult(value)), setFactory ++ denominator.map(_.mult(value)))
+  def pot(value: Double): UnitFraction = UnitFraction(setFactory ++ numerator.map(_.mult(value)), setFactory ++ denominator.map(_.mult(value)))
 
-  def sqrt()={
-    val num=setFactory()
-    val den=setFactory()
-    for(n<-numerator) (if(n.exponent %2 ==0) num+= new UnitElem(n.name,(n.exponent /2).toByte)
-              else throw new IllegalArgumentException("sqrt numerator ="+n ))
-    for(d<-denominator) (if(d.exponent % 2 ==0) den+=new UnitElem(d.name,(d.exponent/2).toByte )
-              else throw new IllegalArgumentException("sqrt denominator "+d))
+  def sqrt(): UnitFraction ={
+    var num=setFactory()
+    var den=setFactory()
+    for(n<-numerator) if(n.exponent %2 ==0) num= num+ new UnitElem(n.name,(n.exponent /2).toByte)
+              else throw new IllegalArgumentException("sqrt numerator ="+n )
+    for(d<-denominator) if(d.exponent % 2 ==0) den=den +new UnitElem(d.name,(d.exponent/2).toByte )
+              else throw new IllegalArgumentException("sqrt denominator "+d)
     UnitFraction(num,den)
   }
 
@@ -135,12 +135,15 @@ case class UnitNumber(value: Double, unitFraction: UnitFraction) extends Constan
 
   def getTerm: String = value.toString + unitFraction.toString
 
-  override def getReadableTerm(format: String): String = (
-    try {
-      format.format(value)
-    } catch {
-    case NonFatal(e)=> Log.e("format:"+format+" value:"+value+" error:"+e);getTerm
-    }) + unitFraction.toString
+  override def getReadableTerm(format: String): String = {
+    val numValue=
+      try {
+        format.format(value)
+      } catch {
+        case NonFatal(e) => Log.e("format:" + format + " value:" + value + " error:" + e); getTerm
+      }
+     s"$numValue${unitFraction.toString}"
+  }
 
   override def containsString(st: String, checkNumbers: Boolean): Boolean = checkNumbers && toString.contains(st)
 
@@ -149,7 +152,7 @@ case class UnitNumber(value: Double, unitFraction: UnitFraction) extends Constan
 
 
 object UnitNumber {
-  val ordering: Ordering[UnitElem] = Ordering.by[UnitElem, String](_.name)
+  implicit val ordering: Ordering[UnitElem] = Ordering.by[UnitElem, String](_.name)
   val emptySet: TreeSet[UnitElem] = collection.immutable.TreeSet[UnitElem]()(ordering)
   val emptyFraction = UnitFraction(emptySet, emptySet)
   val stopChars: Array[Char] = Array(')', ',', ';')
@@ -165,7 +168,7 @@ object UnitNumber {
 
   //def sameList(first:SortedSet[UnitElem],second:SortedSet[UnitElem]):Boolean= first.sameElements(second)
 
-  def setFactory() = new mutable.TreeSet()(UnitNumber.ordering)
+  def setFactory() = new immutable.TreeSet()(UnitNumber.ordering)
 
   def decode(text: String): (UnitNumber, Int) = {
     var fractionEnd = DoubleConstant.findEnd(text, 2)

@@ -13,7 +13,7 @@ case class ResultElement(paramName:String,result:Constant)
 /**
   *
   */
-case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Seq[ResultElement]) {
+case class OutputDefinition(odInst: Int, formInst: Int, printer: String, paperSetting: String, portrait: Boolean, paramValues: Iterable[ResultElement]) {
   lazy val outName: String = getOutName
   var formName: String = ""
 

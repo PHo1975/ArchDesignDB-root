@@ -28,7 +28,7 @@ object StringUtils {
     else tt.replace(',', '.').toDouble
   } catch {case _: Exception => 0d}
 
-  def splitBracketed(text: String, firstBrack: Char, secondBrack: Char): (Seq[String], Seq[String]) = {
+  def splitBracketed(text: String, firstBrack: Char, secondBrack: Char): (ArrayBuffer[String], ArrayBuffer[String]) = {
     var textPos = 0
     val normalTexts = ArrayBuffer[String]()
     val subTexts = ArrayBuffer[String]()
@@ -63,7 +63,7 @@ object StringUtils {
     }
   }
 
-  def encode(n: String): String = '"' + n.replace('"', '«') + '"'
+  def encode(n: String): String = s"""\"${ n.replace('"', '«') }\""""
 
   def decode(n: String): String = n.substring(1, n.length - 1).replace('«', '"')
 

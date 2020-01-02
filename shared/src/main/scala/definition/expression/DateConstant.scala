@@ -66,7 +66,7 @@ case class DateConstant(day: Int, month: Int, year: Int) extends Constant {
 
   //def createCopy(): Expression = { new DateConstant(day,month,year) }
 
-  override def toString: String = day + "." + month + "." + year
+  override def toString: String = day.toString + "." + month + "." + year
 
   def toDateString: String = toString
 

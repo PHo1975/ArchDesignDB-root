@@ -31,7 +31,7 @@ object NO_AREA_MATCH extends PartArea(PointList(Seq())) {
 
 class TrianglePartArea(pl: PointList, dividerLines: Seq[(VectorConstant, VectorConstant)] = Nil) extends PartArea(pl) {
   if (pointList.points.size != 3) throw new IllegalArgumentException("Triangle with " + pointList.points.size + " Points")
-  val maxEdgeLength: (Double, Int) = pointList.edgeLengths.zip(pointList.points.indices.iterator).maxBy(_._1)
+  val maxEdgeLength: (Double, Int) = pointList.edgeLengths.zip(pointList.points.indices.iterator).maxBy(_._1)(Ordering.Double.TotalOrdering)
   val oppositePoint: VectorConstant = pointList.points(pointList.getPrevPoint(maxEdgeLength._2))
   val maxEdge = Line3D(pointList.points(maxEdgeLength._2), pointList.points(pointList.nextVect(maxEdgeLength._2))
     - pointList.points(maxEdgeLength._2))
@@ -193,7 +193,7 @@ object RectPart {
       val otherPointsInRect = pointList.points.filter(p => !allowedPoints.contains(p) && testArea.contains(p))
       val result: Option[(Polygon, VectorConstant)] = if (otherPointsInRect.isEmpty) Some((testArea, deltaVect)) else {
         val line = pointList.edges(firstIx).toLine3D
-        val minDistance = otherPointsInRect.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min
+        val minDistance = otherPointsInRect.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min(Ordering.Double.TotalOrdering)
         if (minDistance <= 0) None
         else {
           val newDeltaVect = deltaVect.unit * minDistance
@@ -255,7 +255,7 @@ object TrapezPart {
             //println("otherpointsinTrap:"+otherPointsInTrap.mkString("| "))
             val result = if (otherPointsInTrap.isEmpty) Some(testTrap)
                          else {
-                           val minDistance = otherPointsInTrap.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min
+                           val minDistance = otherPointsInTrap.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min(Ordering.Double.TotalOrdering)
                            if (minDistance <= 0) {util.Log.e("points behind Trapez " + minDistance); None}
                            else {
                              val newDeltaVect = delta * minDistance
@@ -295,7 +295,7 @@ object TrapezPart {
                            (new Edge(firstEdge.p2, secondCross), secondCross - thirdEdge.p1)
                          }
                        }
-                       val minDistance = otherPointsInTrap.map(apoint => line.toLine3D.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min
+                       val minDistance = otherPointsInTrap.map(apoint => line.toLine3D.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min(Ordering.Double.TotalOrdering)
                        if (minDistance <= 0) {util.Log.e("points behind ParTrapez " + minDistance); None}
                        else {
                          val newDeltaVect = delta.unit * minDistance
@@ -339,7 +339,7 @@ object TrapezPart {
     // cut trapezes with inner point, if found
     for ((trap, line, otherPoints, delta) <- foundTrapsWithOtherPoints) {
       //println("Special case ")
-      val minDistance = otherPoints.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min
+      val minDistance = otherPoints.map(apoint => line.distanceTo(apoint) * (if (line.pointLocation2D(apoint) < 0) -1 else 1)).min(Ordering.Double.TotalOrdering)
       if (minDistance > 0) {
         val newDeltaVect = delta.unit * minDistance
         val newTrap = PointList(Seq(trap.points.head, trap.points(1), line.pos + line.dir + newDeltaVect, line.pos + newDeltaVect))

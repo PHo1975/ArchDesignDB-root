@@ -13,7 +13,7 @@ trait FunctionManager {
   def getVariableValue(module: String, varName: String): Constant
 
   //def getCollFunctionValue(funcName:String,propertyField:Byte,childType:Int,childField:Byte):Constant
-  def registerVariableResolver(res: VariableResolver)
+  def registerVariableResolver(res: VariableResolver):Unit
 
   def collFuncList: Map[String, CollectingFunction]
 }

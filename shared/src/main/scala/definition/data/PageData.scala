@@ -8,7 +8,7 @@ import java.io.{DataInput, DataOutput}
 /**
   *
   */
-case class PageData(pageNr: Int, elementList: Seq[PrintElement]) {
+case class PageData(pageNr: Int, elementList: Iterable[PrintElement]) {
 
   def write(out: DataOutput): Unit = {
     out.writeInt(pageNr)

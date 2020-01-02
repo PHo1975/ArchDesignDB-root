@@ -7,7 +7,7 @@ import java.io.{DataInput, DataOutput}
 
 import definition.data.{DataRetriever, InstanceData}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   *

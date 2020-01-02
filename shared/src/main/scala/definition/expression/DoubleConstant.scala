@@ -4,7 +4,7 @@
 package definition.expression
 
 import java.io.DataOutput
-import java.util.Locale
+//import java.text.FieldPosition
 
 import definition.typ.DataType
 import util.Log
@@ -16,7 +16,7 @@ import scala.util.control.NonFatal
   *
   */
 case class DoubleConstant(n: Double) extends Constant {
-  import DoubleConstant.format
+  import DoubleConstant.doFormat
   def getType: DataType.Value = DataType.DoubleTyp
 
   def getTerm: String = toString
@@ -27,7 +27,7 @@ case class DoubleConstant(n: Double) extends Constant {
     case NonFatal(e)=> Log.e("format:"+format+" value:"+n+" error:"+e);getTerm
   }
 
-  override def toString: String = format.format(n)
+  override def toString: String = doFormat(n)
 
   def toInt: Int = n.round.toInt
 
@@ -53,12 +53,17 @@ case class DoubleConstant(n: Double) extends Constant {
 
 
 object DoubleConstant {
-  Locale.setDefault(new Locale("de","DE"))
+  //Locale.setDefault(new Locale("de","DE"))
 
   val allowedChars: Array[Char] = Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-')
 
-  val format=new java.text.DecimalFormat("0")
-  format.setMaximumFractionDigits(7)
+  //val format=new java.text.DecimalFormat("0")
+  //format.setMaximumFractionDigits(7)
+
+  //protected val fieldPosition=new FieldPosition(0)
+
+  def doFormat(n:Double):String= "%3.3f".format(n)
+
   def decode(text: String): (DoubleConstant, Int) = {
     val end = findEnd(text, 2)
     (new DoubleConstant(text.substring(2, end).toDouble), end)

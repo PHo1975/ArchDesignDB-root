@@ -76,7 +76,7 @@ class UserSetting {
 
   var userList: Seq[UserInfo] = Nil
   var rootRef: Reference = EMPTY_REFERENCE
-  var basicFolders: collection.immutable.Map[String, Reference] = collection.Map.empty
+  var basicFolders: collection.immutable.Map[String, Reference] = Map.empty
   private var groupList = mutable.HashMap[String, PropertyGroup]()
 
   def readFromStream(in: DataInput, length: Int, atClient: Boolean): Unit = {

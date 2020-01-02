@@ -9,7 +9,6 @@ import definition.expression.{EMPTY_EX, Expression}
 import definition.typ.form.AbstractFormBox
 import util.CollUtils
 
-import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{immutable, mutable}
 
@@ -135,7 +134,7 @@ trait AbstractObjectClass {
 
   protected def ownActions: Iterable[ActionTrait]
 
-  protected def superClasses: Seq[Int]
+  protected def superClasses: Array[Int]
 
   protected def ownFieldSettings: Seq[FieldSetting]
 }
@@ -170,7 +169,7 @@ object UNDEFINED_CLASS extends AbstractObjectClass {
 
   override protected def ownActions: Iterable[ActionTrait] = Seq.empty
 
-  override protected def superClasses: Seq[Int] = Seq.empty
+  override protected def superClasses: Array[Int] = Array.empty
 
   override protected def ownFieldSettings: Seq[FieldSetting] = Seq.empty
 }

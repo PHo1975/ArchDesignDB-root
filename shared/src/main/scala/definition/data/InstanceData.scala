@@ -10,7 +10,7 @@ import definition.expression.{Constant, EMPTY_EX, Expression}
 import definition.typ._
 import util.{Log, StringUtils}
 
-import scala.Array.canBuildFrom
+import scala.collection.IndexedSeqView
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
@@ -19,13 +19,13 @@ import scala.util.matching.Regex
   *
   */
 class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expression],
-                   val owners: Array[OwnerReference] = Array(), val secondUseOwners: Seq[OwnerReference] = Seq.empty, val hasChildren: Boolean = false)
+                   val owners: Array[OwnerReference] = Array(), val secondUseOwners: Array[OwnerReference] = Array.empty, val hasChildren: Boolean = false)
   extends Referencable with KeyAble[Reference] {
 
   lazy val fieldValue: Seq[Constant] = regenFieldCache
   lazy val theClass: AbstractObjectClass = getObjectClass
-  lazy val shortFormArray: Array[Any] = getFormatArray(theClass.shortFormat.fields)
-  lazy val resultFormArray: Array[Any] = getFormatArray(theClass.resultFormat.fields)
+  lazy val shortFormArray: Seq[Any] = getFormatArray(theClass.shortFormat.fields).toSeq
+  lazy val resultFormArray: Seq[Any] = getFormatArray(theClass.resultFormat.fields).toSeq
 
   override def toString: String =
     if (theClass.shortFormat != NOFORMAT && fieldData.nonEmpty)
@@ -39,8 +39,8 @@ class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expres
 
   override def equals(other: Any): Boolean = other match {
     case e: InstanceData => ref.equals(e.ref) && InstanceData.compareLists(fieldData, e.fieldData) &&
-      InstanceData.compareLists(owners, e.owners) &&
-      InstanceData.compareLists(secondUseOwners, e.secondUseOwners) && hasChildren == e.hasChildren
+      InstanceData.compareArrays(owners, e.owners) &&
+      InstanceData.compareArrays(secondUseOwners, e.secondUseOwners) && hasChildren == e.hasChildren
     case _ => false
   }
 
@@ -51,13 +51,12 @@ class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expres
     * @param fieldIndexes array of the field numbers that are part of the format
     * @return an array of the current native values of the given fields
     */
-  def getFormatArray(fieldIndexes: Array[Int]): Array[Any] =
-    for (i <- fieldIndexes)
+  def getFormatArray(fieldIndexes: Array[Int]): IndexedSeqView[Any] =
+    for (i <- fieldIndexes.view)
       yield if (i > -1) {
         val theVal = fieldValue(i)
         theVal.getNative
-      }
-            else ref.instance
+      } else ref.instance
 
   def resultString: String = if (theClass.resultFormat != NOFORMAT)
                                try {
@@ -113,7 +112,7 @@ class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expres
 
   def addSecondUseOwner(newOwner: OwnerReference): InstanceData = changeSecondUseOwners(secondUseOwners :+ newOwner)
 
-  def changeSecondUseOwners(newOwners: Seq[OwnerReference]): InstanceData = new InstanceData(ref, fieldData, owners, newOwners, hasChildren)
+  def changeSecondUseOwners(newOwners: Array[OwnerReference]): InstanceData = new InstanceData(ref, fieldData, owners, newOwners, hasChildren)
 
   def setFieldValues(newValues: IndexedSeq[Expression]): InstanceData =
     if (newValues.size == fieldData.size) new InstanceData(ref, newValues, owners, secondUseOwners, hasChildren)
@@ -131,7 +130,7 @@ class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expres
     * @param newOwners the owners of the new instance
     * @return
     */
-  def clone(newRef: Reference, newOwners: Array[OwnerReference], newSecondUseOwners: Seq[OwnerReference]): InstanceData =
+  def clone(newRef: Reference, newOwners: Array[OwnerReference], newSecondUseOwners: Array[OwnerReference]): InstanceData =
     new InstanceData(newRef, fieldData.map(_.createCopy()), newOwners, newSecondUseOwners, hasChildren)
 
 
@@ -151,7 +150,7 @@ class InstanceData(override val ref: Reference, val fieldData: IndexedSeq[Expres
     case ac => ac.getClassByID(ref.typ)
   }
 
-  def printFields: String = fieldData.indices.map(ix => ix + ":" + fieldData(ix).getTerm).mkString("\n")
+  //def printFields: String = fieldData.indices.map(ix => ix + ":" + fieldData(ix).getTerm).mkString("\n")
 
   // keyable interface
   def key: Reference = ref
@@ -196,6 +195,11 @@ object InstanceData {
                                                        else if (a.size != b.size) false
                                                        else !a.indices.exists(ix => a(ix) != b(ix))
 
+  def compareArrays[T](a: Array[T], b: Array[T]): Boolean = if (a == null || b == null) false
+  else if (a.length != b.length) false
+  else !a.indices.exists(ix => a(ix) != b(ix))
+
+
   def read(nref: Reference, file: DataInput, nhasChildren: Boolean) =
    new InstanceData(nref, readFields(file), readOwners(file), readSecondUseOwners(file), nhasChildren)
 
@@ -229,7 +233,7 @@ object InstanceData {
     ownArray
   }
 
-  def emptyInstance(nref:Reference)=new InstanceData(nref,IndexedSeq.empty,Array.empty,Seq.empty,false)
+  def emptyInstance(nref:Reference)=new InstanceData(nref,IndexedSeq.empty,Array.empty,Array.empty,false)
 
 
 }
@@ -280,7 +284,7 @@ object OwnerRefList {
 
 
 object EMPTY_OWNERREF extends OwnerReference(0, EMPTY_REFERENCE)
-object EMPTY_INSTANCE extends InstanceData(EMPTY_REFERENCE,IndexedSeq.empty,Array.empty,Seq.empty,false){
+object EMPTY_INSTANCE extends InstanceData(EMPTY_REFERENCE,IndexedSeq.empty,Array.empty,Array.empty,false){
   override def getObjectClass: AbstractObjectClass = UNDEFINED_CLASS
 }
 

@@ -28,7 +28,7 @@ trait RenderContext {
 
   def toUnit(mm: Double): Float = (mm * 72.0f / 25.4f).toFloat
 
-  def drawHatch(poly: Polygon, hatchStyle: Int, paperScale: Boolean, g: Graphics2D, color: Color, layerScale: Float, startPoint: VectorConstant, hatchAngle: Double)
+  def drawHatch(poly: Polygon, hatchStyle: Int, paperScale: Boolean, g: Graphics2D, color: Color, layerScale: Float, startPoint: VectorConstant, hatchAngle: Double):Unit
 
   def getGraphFont(fontFamily: String, height: Double, style: Int): Font = {
     val key = (fontFamily, height, style)

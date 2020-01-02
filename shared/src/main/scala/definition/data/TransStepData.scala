@@ -7,7 +7,7 @@ import java.io._
 
 
 case class LogIndexSet(transTyp: TransType.Value, trID: Int, typ: Int, inst: Int, dataPos: Long, dataLength: Int) {
-  override def toString: String = transTyp + " [" + typ + "," + inst + "] dataPos:" + dataPos + " length:" + dataLength
+  override def toString: String = transTyp.toString + " [" + typ + "," + inst + "] dataPos:" + dataPos + " length:" + dataLength
 }
 
 

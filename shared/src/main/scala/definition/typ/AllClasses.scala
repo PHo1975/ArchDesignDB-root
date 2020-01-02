@@ -6,7 +6,6 @@ package definition.typ
 import definition.data.{OwnerReference, Referencable, Reference}
 import util.Log
 
-import scala.Array.fallbackCanBuildFrom
 import scala.collection.mutable
 
 /**
@@ -119,10 +118,10 @@ object AllClasses {
     if (resolve) classObj.resolveFields()
   }
 
-  def stringToIntList(text: String): Seq[Int] =
-    if (text == null || text.length == 0) Seq.empty
+  def stringToIntList(text: String): Array[Int] =
+    if (text == null || text.length == 0) Array.empty
     else text.split(",").map(_.toInt)
 
-  def refToString(ref: Reference): String = if (ref == null) "null" else if (ref.typ < 1) "[Undefined,ref.instance]" else
-                                                                                                                       "[" + classObj.getClassByID(ref.typ).name + "," + ref.instance + "]"
+  def refToString(ref: Reference): String = if (ref == null) "null" else if (ref.typ < 1) "[Undefined,ref.instance]"
+  else "[" + classObj.getClassByID(ref.typ).name + "," + ref.instance + "]"
 }

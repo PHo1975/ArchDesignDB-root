@@ -7,9 +7,6 @@ import java.io.{DataInput, DataOutput}
 import definition.data.{Referencable, Reference}
 import definition.typ.DataType
 
-import scala.Array.fallbackCanBuildFrom
-
-
 //case class InterPoint(nx:Double,ny:Double) extends VectorConstant(nx,ny,0)
 
 class Edge(val p1: VectorConstant, val p2: VectorConstant) {
@@ -159,7 +156,7 @@ case class PointList(points: Seq[VectorConstant]) {
   def getUmfang: Double = if (numVecs < 3) 0d else
                                                 (1 until numVecs).foldLeft(0d)((s, ix) => s + (points(ix) - points(ix - 1)).toDouble) + (points.head - points(numVecs - 1)).toDouble
 
-  def minEdgeDistanceToPoint(point: VectorConstant): Double = (edges map (e => scala.math.abs(e.pointLocation2D(point)))).min
+  def minEdgeDistanceToPoint(point: VectorConstant): Double = (edges map (e => scala.math.abs(e.pointLocation2D(point)))).min(Ordering.Double.TotalOrdering)
 
   def translate(v: VectorConstant) = PointList(points.map(_ + v))
 
@@ -327,7 +324,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
   def translatePoints(points: Set[VectorConstant], delta: VectorConstant) = new Polygon(parents, pathList.map(_.translatePoints(points, delta)))
 
   def intersectionsWith(p1: VectorConstant, p2: VectorConstant): Seq[(Double, VectorConstant)] =
-    pathList.flatMap(_.edges.flatMap(_.getIntersectionWith(p1, p2))).sortBy(a => a._1) //.distinct
+    pathList.flatMap(_.edges.flatMap(_.getIntersectionWith(p1, p2))).sortBy(a => a._1)(Ordering.Double.TotalOrdering) //.distinct
 
   def contains(v: VectorConstant): Boolean = {
     testPoint.x = v.x
@@ -339,7 +336,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     } else false
   }
 
-  def minEdgeDistanceToPoint(point: VectorConstant): Double = (pathList map (_.minEdgeDistanceToPoint(point))).min
+  def minEdgeDistanceToPoint(point: VectorConstant): Double = (pathList map (_.minEdgeDistanceToPoint(point))).min(Ordering.Double.TotalOrdering)
 
   def intersectsWith(other: Polygon): Boolean = {
     if (other.maxX - treshold <= minX || other.minX + treshold >= maxX || other.maxY - treshold <= minY || other.minY + treshold >= maxY) false
@@ -401,10 +398,10 @@ object Polygon {
   def decode(text: String): (Polygon, Int) = {
     val end = text.indexOf(']', 3)
     val parts = text.substring(3, end).split('|')
-    (new Polygon(Seq.empty, parts.map(decodePointList)), end + 1)
+    (new Polygon(Seq.empty, parts.map(decodePointList).toIndexedSeq), end + 1)
   }
 
-  def decodePointList(text: String): PointList = PointList(text.split('§').map(VectorConstant.decode(_)._1))
+  def decodePointList(text: String): PointList = PointList(text.split('§').view.map(VectorConstant.decode(_)._1).toIndexedSeq)
 
   def areaToPoints(area: Area): Seq[PointList] = {
     val iter = area.getPathIterator(null)
@@ -416,11 +413,11 @@ object Polygon {
       iter.currentSegment(retArray) match {
         case PathIterator.SEG_MOVETO => pList = collection.mutable.ArrayBuffer[VectorConstant](new VectorConstant(retArray(0), retArray(1), 0))
         case PathIterator.SEG_LINETO => pList += new VectorConstant(retArray(0), retArray(1), 0)
-        case PathIterator.SEG_CLOSE => pathList += PointList(pList)
+        case PathIterator.SEG_CLOSE => pathList += PointList(pList.toSeq)
       }
       iter.next()
     }
-    pathList
+    pathList.toSeq
   }
 
   def ringLoop[A](s: Iterable[A]): Iterator[A] = {

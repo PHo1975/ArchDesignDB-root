@@ -30,7 +30,7 @@ case class StringConstant(n: String) extends Constant {
 
   //def createCopy(): Expression = { StringConstant(n) }
 
-  def getTerm: String = '"' + n + '"'
+  def getTerm: String = s"""\"$n\""""
 
   override def toString: String = n
 

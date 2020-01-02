@@ -43,8 +43,8 @@ object ClientCommands extends Enumeration {
   val getNextParentOfType = Value("Next Parent Of Type")
   val searchForText = Value("Search for Text")
   val convertInstances = Value("Convert Instances")
-  /*val createBlock=Value("Create block")
+  val createBlock=Value("Create block")
   val changeBlock=Value("Change block")
   val deleteBlock=Value("Delete block")
-  val startBlockSubscription=Value("startBlockSubscription")*/
+  val startBlockSubscription=Value("startBlockSubscription")
 }

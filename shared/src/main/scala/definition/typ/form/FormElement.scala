@@ -62,7 +62,7 @@ trait AbstractFormElement {
   *
   */
 trait DataChangeListener {
-  def fieldChanged(field: Byte, newValue: Expression)
+  def fieldChanged(field: Byte, newValue: Expression):Unit
 
   def parseValue(fieldNr: Byte, text: String): ParserResult
 
@@ -81,7 +81,7 @@ trait FormDataField extends AbstractFormElement {
 
   def shutDown(): Unit
 
-  def setDataValue(dvalue: InstanceData, nclass: AbstractObjectClass)
+  def setDataValue(dvalue: InstanceData, nclass: AbstractObjectClass):Unit
 
   def setListener(nlist: Option[DataChangeListener]): Unit = {
     listener = nlist

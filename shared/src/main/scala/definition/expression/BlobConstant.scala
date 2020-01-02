@@ -29,7 +29,7 @@ case class BlobConstant(data: Array[Byte]) extends Constant {
 
   def toDouble = 0d
 
-  def toLong = 0l
+  def toLong = 0L
 
   def toBoolean = false
 

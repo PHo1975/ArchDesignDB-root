@@ -10,7 +10,7 @@ package definition.typ
 
 object DataType extends Enumeration {
   lazy val wrapMap: Map[DataType.Value, DTWrap] = values.toList.map(a => a -> DTWrap(a.toString, a)).toMap
-  lazy val wrappedValues: Seq[DTWrap] = values.map(a => DTWrap(a.toString, a)).toSeq
+  lazy val wrappedValues: Seq[DTWrap] = values.unsorted.map(a => DTWrap(a.toString, a)).toSeq
   val IntTyp = Value("Integer") //0
   val LongTyp = Value("Long") //1
   val DoubleTyp = Value("Double") //2
