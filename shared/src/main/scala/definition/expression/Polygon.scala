@@ -158,11 +158,11 @@ case class PointList(points: Seq[VectorConstant]) {
 
   def minEdgeDistanceToPoint(point: VectorConstant): Double = (edges map (e => scala.math.abs(e.pointLocation2D(point)))).min(Ordering.Double.TotalOrdering)
 
-  def translate(v: VectorConstant) = PointList(points.map(_ + v))
+  def translate(v: VectorConstant): PointList = PointList(points.map(_ + v))
 
-  def translatePoints(hitPoints: Set[VectorConstant], delta: VectorConstant) = PointList(points.map(p => if (hitPoints.contains(p)) p + delta else p))
+  def translatePoints(hitPoints: Set[VectorConstant], delta: VectorConstant): PointList = PointList(points.map(p => if (hitPoints.contains(p)) p + delta else p))
 
-  def transform(trans: VectorConstant => VectorConstant) = PointList(points.map(trans))
+  def transform(trans: VectorConstant => VectorConstant): PointList = PointList(points.map(trans))
 
   def pointsOutsideFromEdge(edge: Edge): Boolean = {
     points.exists(edge.pointLocation2D(_) > 0)
@@ -170,7 +170,7 @@ case class PointList(points: Seq[VectorConstant]) {
 
   def clockWise: PointList = if (getArea > 0) reverse else this
 
-  def reverse = PointList(points.reverse)
+  def reverse: PointList = PointList(points.reverse)
 
   override def toString: String = "P(" + points.mkString(";") + ")"
 
@@ -187,7 +187,7 @@ case class PointList(points: Seq[VectorConstant]) {
     }.map(_._1))
   }
 
-  def angles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case List(p1, p2, p3) =>
+  def angles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case Seq(p1, p2, p3) =>
     VectorConstant.getAngle(p1, p2, p3)
   }
 
@@ -199,7 +199,7 @@ case class PointList(points: Seq[VectorConstant]) {
 
   def encode(): String = points.map(_.encode).mkString("§")
 
-  def cosAngles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case List(p1, p2, p3) =>
+  def cosAngles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case Seq(p1, p2, p3) =>
     StrictMath.acos(VectorConstant.getAngle(p1, p2, p3)) - (if (VectorConstant.pointLocation2D(p1, p2, p3) < 0) StrictMath.PI else 0)
   }
 

@@ -120,6 +120,29 @@ class CommonFuncMan extends FunctionManager {
 
     def emptyValue: Constant = new DoubleConstant(0)
   }
+
+  protected val minFunc: SingleCollFunction = new SingleCollFunction("minOf") {
+    def childAdded(oldResult: Constant, newValue: Constant): Constant =
+      if (newValue.toDouble<oldResult.toDouble) newValue else oldResult
+
+    def childChanged(oldResult: Constant, oldValue: Constant, newValue: Constant): Option[Constant] = None
+
+    def childRemoved(oldResult: Constant, oldValue: Constant): Option[Constant] = None
+
+    def emptyValue: Constant = new DoubleConstant(Short.MaxValue)
+  }
+
+  protected val maxFunc: SingleCollFunction = new SingleCollFunction("maxOf") {
+    def childAdded(oldResult: Constant, newValue: Constant): Constant =
+      if(newValue.toDouble>oldResult.toDouble) newValue else oldResult
+
+    def childChanged(oldResult: Constant, oldValue: Constant, newValue: Constant): Option[Constant] =None
+
+    def childRemoved(oldResult: Constant, oldValue: Constant): Option[Constant] = None
+
+    def emptyValue: Constant = new DoubleConstant(0)
+  }
+
   protected val currencySumFunc: SingleCollFunction = new SingleCollFunction("currencySum") {
     def childAdded(oldResult: Constant, newValue: Constant): Constant = {
       BinOperator.plusOp.getUnitSafeValue(oldResult.toCurrency, newValue.toCurrency, keepFirstValueUnit = false).get
@@ -136,12 +159,10 @@ class CommonFuncMan extends FunctionManager {
 
   val collFuncList: Map[String, CollectingFunction] = Map[String, CollectingFunction](
     "doubleSum" -> sumFunc, "summe" -> sumFunc, "textSum" -> new ListCollFunction("textSum") {
-      def listChanged(newList: List[(Reference, Constant)]): Constant = {
+      def listChanged(newList: List[(Reference, Constant)]): Constant =
         StringConstant(newList.map({ case (_, const) => const.toString }).mkString(", "))
-      }
-
       def emptyValue: Constant = EMPTY_EX
-    }, "currencySum" -> currencySumFunc
+    }, "currencySum" -> currencySumFunc,"minOf"->minFunc,"maxOf"->maxFunc
   )
 
   var variableResolvers: Map[String, VariableResolver] = Map.empty

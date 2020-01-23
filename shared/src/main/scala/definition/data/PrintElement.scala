@@ -453,13 +453,13 @@ case class GraphTextElement(nbounds: Rectangle2D.Float, text: String, fontName: 
       var brxpos = 0f
       for (ix <- normalTexts.indices; ntext = normalTexts(ix)) {
         val nlayout = new TextLayout(ntext, font, g.getFontRenderContext)
-        StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos, wide = true)
+        StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos, wide = false)
         g.setPaint(color)
         nlayout.draw(g, xpos + brxpos, ypos)
         brxpos += nlayout.getAdvance + 1f
         if (ix < subTexts.size) {
           val slayout = new TextLayout(subTexts(ix), smallFont, g.getFontRenderContext)
-          StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos + 1.5f, wide = true)
+          StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos + 1.5f, wide = false)
           g.setPaint(color)
           slayout.draw(g, xpos + brxpos, ypos + 1.5f)
           brxpos += slayout.getAdvance + 0.5f
@@ -569,11 +569,8 @@ object PrintElement {
   val PI_32: Double = math.Pi * 3 / 2
   val tinyFont = new Font("Arial", 0, 10)
   val underlineStroke = new BasicStroke()
-  /*val strokeMap = new FactoryMap[Float, BasicStroke](d => {
-    if (d == 0.4f) new BasicStroke(0.3f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 1f, Array(3f, 2f), 0f)
-    else if (d == 0.6f) new BasicStroke(0.3f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 1f, Array(1f, 5f), 0f)
-    else new BasicStroke(d)
-  })*/
+
+
 
   def apply(in: DataInput): PrintElement = PrintElType(in.readByte) match {
     case PrintElType.TextField => new TextPrintElement(readBounds(in), in.readUTF, in.readUTF)
@@ -605,11 +602,3 @@ object PrintElement {
 }
 
 
-/*class FactoryMap[A, B](factory: A => B) extends collection.mutable.HashMap[A, B] {
-  override def apply(a: A): B = if (contains(a)) super.apply(a)
-                                else {
-                                  val n = factory(a)
-                                  update(a, n)
-                                  n
-                                }
-}*/

@@ -12,6 +12,8 @@ import scala.collection.immutable.IndexedSeq
 
 /** Stores the Property Information of an instance
   * propertyFields: Array of the propertyFieldsData of an instance
+  * When numbering property fields,
+  * common property fields are numbered first and block property fields follow.
   */
 class InstanceProperties(override val ref: Reference, val propertyFields: Array[PropertyFieldData])
   extends Referencable {
@@ -19,17 +21,16 @@ class InstanceProperties(override val ref: Reference, val propertyFields: Array[
   //TODO: convert to indexseq
 
   override def write(file: DataOutput): Unit = {
-
     file.writeByte(propertyFields.length)
     for (p <- propertyFields)
       p.write(file)
   }
 
-  def dataLength: Int = {
+  /*def dataLength: Int = {
     var result = 1
     for (p <- propertyFields) result += p.dataLength
     result
-  }
+  }*/
 
   def addChildInstance(field: Byte, newInst: Reference, atPos: Int): InstanceProperties =
     changeField(field, getFieldOrCreate(field).addPropertyInstance(newInst, atPos))
@@ -52,9 +53,12 @@ class InstanceProperties(override val ref: Reference, val propertyFields: Array[
   def getFieldOrCreate(fieldIx: Int): PropertyFieldData =
     if (fieldIx < propertyFields.length) propertyFields(fieldIx)
     else {
-      val pfields = AllClasses.get.getClassByID(ref.typ).propFields
-      if (fieldIx < pfields.length) new PropertyFieldData(pfields(fieldIx).single, IndexedSeq.empty)
-      else throw new IllegalArgumentException("add child getPropertyField " + fieldIx + " index is out of bounds for " + ref + " propfield Size " + pfields.length)
+      val theClass = AllClasses.get.getClassByID(ref.typ)
+      if (fieldIx < theClass.propFields.length) new PropertyFieldData(theClass.propFields(fieldIx).single, IndexedSeq.empty)
+      else if(fieldIx< theClass.propFields.length+theClass.blockPropFields.length)
+        new PropertyFieldData(false,IndexedSeq.empty)
+      else throw new IllegalArgumentException("add child getPropertyField " + fieldIx + " index is out of bounds for " +
+        ref + " propfield size " + theClass.propFields.length+" blockPropfield size "+theClass.blockPropFields.size)
     }
 
   def removeChildInstance(field: Byte, remInst: Reference): InstanceProperties =
