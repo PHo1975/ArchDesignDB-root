@@ -11,7 +11,7 @@ import scala.collection.mutable
 /**
   * Contains a list of all current classes
   */
-abstract class AllClasses[B <: AbstractObjectClass] /*(node: scala.xml.Node)*/ {
+abstract class AllClasses[B <: AbstractObjectClass]  {
 
   def classList: collection.Map[Int, B]
 
