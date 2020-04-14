@@ -14,10 +14,7 @@ package definition.expression
 class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
   lazy val dirUnit: VectorConstant = dir.unit
 
-  //import Plane3D._ 
 
-
-  //implicit def builder[A <:Plane3D]:PlaneBuilder[A]=SimpleBuilder
   /** the x axis coordinate base for a coordinate system on the plane
     * it is assumed that this vector is always horizontal
     */
@@ -102,9 +99,3 @@ class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
   def toWorldVector(coordsVector: VectorConstant): VectorConstant = pos + areaAxisX * coordsVector.x + areaAxisY * coordsVector.y
 }
 
-/*object Plane3D {
-	  implicit def builder[A<:Plane3D] : PlaneBuilder[A]=myBuilder
-		 val myBuilder=new PlaneBuilder[Plane3D]{ 
-			def createClone(oldv:Plane3D,newPos:VectorConstant,newDir:VectorConstant)= new Plane3D(newPos,newDir)
-		}
-	}*/

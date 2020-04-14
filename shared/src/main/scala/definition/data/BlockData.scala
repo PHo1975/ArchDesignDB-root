@@ -9,5 +9,6 @@ class BlockData(val ref:Reference, val data:Array[Byte]) extends Referencable wi
 
   override def write(d: DataOutput): Unit= d.write(data)
 
+  override def toString: String ="Block("+ref+",data size:"+data.length+")"
 }
 

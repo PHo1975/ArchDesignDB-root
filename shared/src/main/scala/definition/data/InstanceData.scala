@@ -12,7 +12,6 @@ import util.{Log, StringUtils}
 
 import scala.collection.IndexedSeqView
 import scala.util.control.NonFatal
-import scala.util.matching.Regex
 
 /** Holds the data of a certain Instance
   *
@@ -201,10 +200,10 @@ object InstanceData {
 
 
   def read(nref: Reference, file: DataInput, nhasChildren: Boolean) =
-   new InstanceData(nref, readFields(file), readOwners(file), readSecondUseOwners(file), nhasChildren)
+   new InstanceData(nref, readFields(file), readOwners(file,nref), readSecondUseOwners(file), nhasChildren)
 
   def readWithChildInfo(nref: Reference, file: DataInput): InstanceData = try {
-    new InstanceData(nref, readFields(file), readOwners(file), readSecondUseOwners(file), file.readBoolean)
+    new InstanceData(nref, readFields(file), readOwners(file,nref), readSecondUseOwners(file), file.readBoolean)
   } catch {
     case NonFatal(e) => throw new IllegalArgumentException(" when reading :" + nref + " " + e.toString)
   }
@@ -214,10 +213,10 @@ object InstanceData {
     for (_ <- 0 until nfields) yield Expression.read(file)
   }
 
-  def readOwners(file: DataInput): Array[OwnerReference] = {
+  def readOwners(file: DataInput,ref:Reference): Array[OwnerReference] = {
     val nOwners = file.readByte
     val ownArray = new Array[OwnerReference](if (nOwners < 0) 0 else nOwners)
-    if (nOwners < 0) Log.e("negative num of Owners " + nOwners + " when reading owners")
+    if (nOwners < 0) Log.e("negative num of Owners " + nOwners + " when reading owners of "+ref)
     else for (o <- 0 until nOwners)
       ownArray(o) = OwnerReference.read(file)
     //println("read owers:"+ownArray.mkString(">"))
@@ -226,6 +225,7 @@ object InstanceData {
 
   def readSecondUseOwners(file: DataInput): Array[OwnerReference] = {
     val nOwners = file.readShort
+    if(nOwners<0) Log.e("netagive num of SecondUseOwners "+nOwners)
     //println("num second use:"+nOwners)
     val ownArray = new Array[OwnerReference](nOwners)
     for (o <- 0 until nOwners)
@@ -234,56 +234,9 @@ object InstanceData {
   }
 
   def emptyInstance(nref:Reference)=new InstanceData(nref,IndexedSeq.empty,Array.empty,Array.empty,false)
-
-
 }
 
 
-/* describes one owner of an instance data
- * 
- */
-@SerialVersionUID(21543L) case class OwnerReference(ownerField: Byte, //in what property field of the owner instance
-                                                    //is this instance stored
-                                                    ownerRef: Reference) { // reference of the owner instance
-
-  def this(of: Int, or: Reference) = this(of.toByte, or)
-
-  def write(out: DataOutput): Unit = {
-    out.writeByte(ownerField)
-    ownerRef.write(out)
-  }
-
-  override def toString: String = (if (ownerRef == null) "()" else ownerRef.sToString()) + "|" + ownerField
-
-  def sToString: String = ownerRef.bToString() + "," + ownerField
-}
-
-
-object OwnerReference {
-  val RMatch: Regex ="""\(?(\d+)[,](\d+)[,](\d+)\)?""".r
-
-  def read(in: DataInput) = new OwnerReference(in.readByte, Reference(in))
-
-  def unapply(st: String): Option[OwnerReference] = try {
-    st match {
-      case RMatch(otyp, oinst, prField) => Some(new OwnerReference(prField.toByte, new Reference(otyp.toInt, oinst.toInt)))
-      case _ => None
-    }
-  } catch {case NonFatal(_) => None}
-}
-
-
-object OwnerRefList {
-  def unapply(st: String): Option[Array[OwnerReference]] = try {
-    Some(st.split(';').collect { case OwnerReference(a) => a })
-  }
-  catch {
-    case NonFatal(e) => Log.e("Error decoding  ", e); None
-  }
-}
-
-
-object EMPTY_OWNERREF extends OwnerReference(0, EMPTY_REFERENCE)
 object EMPTY_INSTANCE extends InstanceData(EMPTY_REFERENCE,IndexedSeq.empty,Array.empty,Array.empty,false){
   override def getObjectClass: AbstractObjectClass = UNDEFINED_CLASS
 }

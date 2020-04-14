@@ -115,6 +115,7 @@ object Expression {
   lazy val NullDATE = DateConstant()
   lazy val NULLOBJREF = new ObjectReference(0, 0)
   lazy val NULLUNITNUMBER = new UnitNumber(0, UnitNumber.emptyFraction)
+  lazy val NULLINTLIST=new IntList(Array.empty)
 
   def read(file: DataInput): Expression = {
     val code = file.readByte
@@ -139,6 +140,7 @@ object Expression {
       case DataType.PolygonTyp => Polygon(file)
       case DataType.VariableTyp => Variable(file)
       case DataType.UnitNumberTyp => UnitNumber(file)
+      case DataType.IntListTyp=> IntList(file)
       case o => throw new IllegalArgumentException("Unknown Datatype " + o + " when read expression")
     }
   }
@@ -158,6 +160,7 @@ object Expression {
       case DataType.ObjectRefTyp => ObjectReference(file)
       case DataType.PolygonTyp => Polygon(file)
       case DataType.UnitNumberTyp => UnitNumber(file)
+      case DataType.IntListTyp=> IntList(file)
       case o => throw new IllegalArgumentException("Unknown Datatype " + o + " when read Constant")
     }
 
@@ -177,6 +180,7 @@ object Expression {
       case DataType.ObjectRefTyp => NULLOBJREF
       case DataType.PolygonTyp => NULLPOLYGON
       case DataType.UnitNumberTyp => NULLUNITNUMBER
+      case DataType.IntListTyp => NULLINTLIST
       case _ => EMPTY_EX
     }
 
@@ -208,6 +212,7 @@ object Expression {
           case 'U' | 'u' => DateConstant.decode(text)
           case 'V' | 'v' => VectorConstant.decode(text)
           case 'Y' | 'y' => Variable.decode(text)
+          case 'Z' | 'z' => IntList.decode(text)
           case other => throw new IllegalArgumentException("Decode : unknown tag " + other + " " + text)
         }
         case '"' =>
@@ -229,7 +234,4 @@ object Decode {
     case NonFatal(e) => Log.e("Error decoding ", e); None
   }
 }
-
-
-
 

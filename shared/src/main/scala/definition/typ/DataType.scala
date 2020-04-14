@@ -34,6 +34,7 @@ object DataType extends Enumeration {
   val VariableTyp = Value("Variable") //18
   val UnitNumberTyp = Value("UnitNumber") //19
   val VectorBlockRef = Value("VectorBlockRef") //20
+  val IntListTyp= Value("IntList")//21
 
   def isCompatible(one: Value, other: Value): Boolean = {
     if (one == undefined || other == undefined) true

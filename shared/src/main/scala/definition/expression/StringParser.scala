@@ -141,12 +141,16 @@ class StringParser extends JavaTokenParsers {
     doubleNumber ^^ { y => DoubleConstant(y.replace(',', '.').toDouble) } |
     intNumber ^^ { x => IntConstant(x.toInt) } | trueVal | falseVal |
     stringVariable ^^ { s => StringConstant(s.substring(1, s.length - 1)) } |
-    fieldRef |  variable | collFunction | parentFieldRef | vector | todayConstant ^^ { _ => TodayConstant } |
+    fieldRef |  variable | collFunction | parentFieldRef | vector | todayConstant ^^ { _ => TodayConstant } |IntListExpr|
     ("(" ~> nonWhiteComp <~ ")") | failure("Zahl oder Wert fehlt")
 
   def nonWhiteElem: Parser[Expression] = whiteSpace ~> elem <~ whiteSpace ||| whiteSpace ~> elem ||| elem <~ whiteSpace ||| elem
 
   //def nonWhiteElem=elem
+
+  def IntListExpr:Parser[Expression]= {
+    ("[" ~> repsep(intNumber,",")<~"]")^^(list=>new IntList(list.map(_.toInt).toArray))
+  }
 
   def paramList: Parser[List[Expression]] = {
     ("(" ~> repsep(nonWhiteComp, ";") <~ ")") ^^ (list => list)

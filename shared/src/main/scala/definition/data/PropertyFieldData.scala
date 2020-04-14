@@ -48,7 +48,7 @@ class PropertyFieldData(val isSingle: Boolean, val propertyList: IndexedSeq[Refe
 
   def removePropertyInstance(ref: Reference): PropertyFieldData = {
     val newList = if (propertyList.length == 1 && propertyList.head == ref) IndexedSeq.empty
-                  else propertyList.filter(x => x != ref)
+                  else propertyList.filter(_ != ref)
     new PropertyFieldData(isSingle, newList)
   }
 

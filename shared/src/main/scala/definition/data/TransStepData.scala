@@ -50,4 +50,5 @@ object TransType extends Enumeration {
   val linksChanged = Value("Links changed")
   val collFuncChanged = Value("CollFunc changed")
   val deleted = Value("deleted")
+  val undefined= Value("undefined")
 }
