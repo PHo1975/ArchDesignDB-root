@@ -97,5 +97,7 @@ class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
   }
 
   def toWorldVector(coordsVector: VectorConstant): VectorConstant = pos + areaAxisX * coordsVector.x + areaAxisY * coordsVector.y
+
+  override def toString= "Plane(pos:"+pos+", dir:"+dir+")"
 }
 

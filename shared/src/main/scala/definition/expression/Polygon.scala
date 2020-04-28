@@ -1,6 +1,9 @@
 package definition.expression
 
+
+
 import java.awt.geom.Path2D.{Double => Path2dDouble}
+//import util.clipping.{Area, Path2D, PathIterator}
 import java.awt.geom._
 import java.io.{DataInput, DataOutput}
 
@@ -25,7 +28,7 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
     (p2.x - p1.x) * (point.y - p1.y) - (point.x - p1.x) * (p2.y - p1.y)
   }
 
-  def isParallelWith(other: Edge): Boolean = StrictMath.abs(VectorConstant.det2D(other.dx, other.dy, dx, dy)) < Polygon.treshold
+  def isParallelWith(other: Edge): Boolean = Math.abs(VectorConstant.det2D(other.dx, other.dy, dx, dy)) < Polygon.treshold
 
   def length: Double = math.sqrt(dx * dx + dy * dy)
 
@@ -101,117 +104,10 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
 }
 
 
-case class PointList(points: Seq[VectorConstant]) {
-
-  lazy val path2D: Path2D.Double = createPath2D
-  lazy val edges: Seq[Edge] = points.indices.map(i => new Edge(points(i), points(nextVect(i))))
-  lazy val minX: Double = if (points.isEmpty) Double.MaxValue else points.reduceLeft((a, b) => if (a.x < b.x) a else b).x
-  lazy val minY: Double = if (points.isEmpty) Double.MaxValue else points.reduceLeft((a, b) => if (a.y < b.y) a else b).y
-  lazy val maxX: Double = if (points.isEmpty) Double.MinValue else points.reduceLeft((a, b) => if (a.x > b.x) a else b).x
-  lazy val maxY: Double = if (points.isEmpty) Double.MinValue else points.reduceLeft((a, b) => if (a.y > b.y) a else b).y
-  lazy val getArea: Double = {
-    if (numVecs < 3) 0
-    else (points.head.x * (points(1).y - points(numVecs - 1).y) + points(numVecs - 1).x * (points.head.y - points(numVecs - 2).y) +
-      (1 until numVecs - 1).foldLeft(0d)((r, ix) => r + points(ix).x * (points(ix + 1).y - points(ix - 1).y))) / 2
-  }
-  lazy val isClockWise: Boolean = getArea < 0
-  lazy val centerPoint: VectorConstant = if (points.isEmpty) NULLVECTOR else
-                                                                          points.foldLeft[VectorConstant](NULLVECTOR)(_ + _) * (1 / points.size)
-
-  def createPath2D: Path2dDouble = {
-    val path = new Path2dDouble
-    if (points.size > 2) {
-      path.moveTo(points.head.x, points.head.y)
-      for (i <- 1 until points.size; p = points(i))
-        path.lineTo(p.x, p.y)
-      path.closePath()
-    }
-    path
-  }
-
-  def getPrevPoint(point: Int): Int = if (point - 1 >= 0) point - 1 else points.size - 1
-
-  def getMidPoint: VectorConstant = if (numVecs < 3) mid else {
-    val area = getArea
-    val sp = points(numVecs - 1)
-    val snp = points.head
-    val sfact = sp.x * snp.y - snp.x * sp.y
-    var rx = (sp.x + snp.x) * sfact
-    var ry = (sp.y + snp.y) * sfact
-    for (i <- 0 until numVecs - 1) {
-      val p = points(i)
-      val np = points(i + 1)
-      val fact = p.x * np.y - np.x * p.y
-      rx += (p.x + np.x) * fact
-      ry += (p.y + np.y) * fact
-    }
-    val fact2 = 6d * area
-    new VectorConstant(rx / fact2, ry / fact2, 0)
-
-  }
-
-  private def mid = if (points.isEmpty) NULLVECTOR else new VectorConstant(points.foldLeft(0d)(_ + _.x) / points.size,
-    points.foldLeft(0d)(_ + _.y) / points.size, points.foldLeft(0d)(_ + _.z) / points.size)
-
-  def getUmfang: Double = if (numVecs < 3) 0d else
-                                                (1 until numVecs).foldLeft(0d)((s, ix) => s + (points(ix) - points(ix - 1)).toDouble) + (points.head - points(numVecs - 1)).toDouble
-
-  def minEdgeDistanceToPoint(point: VectorConstant): Double = (edges map (e => scala.math.abs(e.pointLocation2D(point)))).min(Ordering.Double.TotalOrdering)
-
-  def translate(v: VectorConstant): PointList = PointList(points.map(_ + v))
-
-  def translatePoints(hitPoints: Set[VectorConstant], delta: VectorConstant): PointList = PointList(points.map(p => if (hitPoints.contains(p)) p + delta else p))
-
-  def transform(trans: VectorConstant => VectorConstant): PointList = PointList(points.map(trans))
-
-  def pointsOutsideFromEdge(edge: Edge): Boolean = {
-    points.exists(edge.pointLocation2D(_) > 0)
-  }
-
-  def clockWise: PointList = if (getArea > 0) reverse else this
-
-  def reverse: PointList = PointList(points.reverse)
-
-  override def toString: String = "P(" + points.mkString(";") + ")"
-
-  def write(file: DataOutput): Unit = {
-    file.writeInt(points.size)
-    points.foreach(_.write(file))
-  }
-
-  def removeStraightEdges(): PointList = {
-    val straightEdges = angles.zip(points.indices.iterator).filter { case (angle, _) => StrictMath.abs(StrictMath.abs(angle) - 1d) < Polygon.treshold }.toSeq
-    if (straightEdges.isEmpty) this
-    else PointList( points.zipWithIndex.filterNot {
-      case (_, pix) => straightEdges.exists { case (_, aix) => aix == pix }
-    }.map(_._1))
-  }
-
-  def angles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case Seq(p1, p2, p3) =>
-    VectorConstant.getAngle(p1, p2, p3)
-  }
-
-  def removeDoublePoints(): PointList = {
-    val doublePoints = points.indices.filter(i => VectorConstant.similar(points(i), points(nextVect(i))))
-    if (doublePoints.isEmpty) this
-    else PointList(points.zipWithIndex.filterNot { case (_, pix) => doublePoints.contains(pix) }.map(_._1))
-  }
-
-  def encode(): String = points.map(_.encode).mkString("§")
-
-  def cosAngles: Iterator[Double] = Polygon.ringLoop(points).sliding(3).map { case Seq(p1, p2, p3) =>
-    StrictMath.acos(VectorConstant.getAngle(p1, p2, p3)) - (if (VectorConstant.pointLocation2D(p1, p2, p3) < 0) StrictMath.PI else 0)
-  }
-
-  def edgeLengths: Iterator[Double] = points.indices.iterator.map(ix => (points(nextVect(ix)) - points(ix)).toDouble)
-
-  def nextVect(i: Int): Int = if (i < numVecs - 1) i + 1 else 0
-
-  def numVecs: Int = points.size
-}
 
 
-class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq.empty) extends Constant {
+
+class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq.empty) extends Constant {
 
   lazy val minX: Double = if (pathList.isEmpty) Double.MaxValue else pathList.reduceLeft((a, b) => if (a.minX < b.minX) a else b).minX
   lazy val minY: Double = if (pathList.isEmpty) Double.MaxValue else pathList.reduceLeft((a, b) => if (a.minY < b.minY) a else b).minY
@@ -221,7 +117,7 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
   lazy val getUmfangValue:Double = pathList.foldLeft(0d)((sum,value)=>{sum+value.getUmfang})
   lazy val path: Path2dDouble = toPath
   lazy val area = new Area(path)
-  private lazy val testPoint = new Point2D.Double
+  //private lazy val testPoint = new Point2D.Double
 
   def toInt: Int = toDouble.toInt
 
@@ -259,8 +155,21 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pa
   }
 
-  def toPathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
-    val pa = new Path2D.Double
+  def toPathNew: util.clipping.Path2D.Double = {
+    val pa = new util.clipping.Path2D.Double
+    if (pathList.nonEmpty) {
+      for (pList <- pathList; if pList.points.size > 2;f=pList.points.head) {
+        pa.moveTo(f.x, f.y)
+        for (ix <- 1 until pList.points.size;p=pList.points(ix))
+          pa.lineTo(p.x, p.y)
+        pa.closePath()
+      }
+    }
+    pa
+  }
+
+  def toPathTransformed(trans: VectorConstant => VectorConstant): java.awt.geom.Path2D.Double = {
+    val pa = new java.awt.geom.Path2D.Double
     if (pathList.nonEmpty) {
       for (pList <- pathList; if pList.points.size > 2) {
         val transf = trans(pList.points.head)
@@ -273,8 +182,8 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pa
   }
 
-  def toLinePathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
-    val pa = new Path2D.Double
+  def toLinePathTransformed(trans: VectorConstant => VectorConstant): java.awt.geom.Path2D.Double = {
+    val pa = new java.awt.geom.Path2D.Double
     for (lh <- pathList.headOption; ph <- lh.points.headOption; fp = trans(ph)) {
       pa.moveTo(fp.x, fp.y)
       for (ix <- 1 until lh.points.size; p = trans(lh.points(ix)))
@@ -327,9 +236,9 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     pathList.flatMap(_.edges.flatMap(_.getIntersectionWith(p1, p2))).sortBy(a => a._1)(Ordering.Double.TotalOrdering) //.distinct
 
   def contains(v: VectorConstant): Boolean = {
-    testPoint.x = v.x
-    testPoint.y = v.y
-    if (area.contains(testPoint)) {
+    //testPoint.x = v.x
+    //testPoint.y = v.y
+    if (area.contains(v.x,v.y)) {
       val med = minEdgeDistanceToPoint(v)
       //println("check contains "+med)
       med > contTreshold
@@ -350,14 +259,20 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
     val cl = areaClone
     cl.intersect(other.area)
     new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))
-    //setArea(cl)
+    //new Polygon(parents,WeilerAthertonClipping.intersect(pathList.head,other.pathList.head))
   }
 
   def subtract(other: Polygon): Polygon = {
-    val cl = areaClone
+    /*val cl = areaClone
     cl.subtract(other.area)
-    //setArea(cl)
-    new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))
+    new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))*/
+    val narea=new util.clipping.Area(toPathNew)
+    narea.subtract(new util.clipping.Area(other.toPathNew))
+    new Polygon(parents ++ other.parents, Polygon.newAreaToPoints(narea))
+
+    /*val fullAndHoles: Map[Boolean, Seq[PointList]] =pathList.groupBy(_.isClockWise)
+    println("FH:"+fullAndHoles)
+    new Polygon(parents,WeilerAthertonClipping.cut(pathList.head,other.pathList.head))*/
   }
 
   def areaClone: Area = area.clone.asInstanceOf[Area]
@@ -365,8 +280,8 @@ class Polygon(val parents: Seq[Referencable], val pathList: Seq[PointList] = Seq
   def add(other: Polygon): Polygon = {
     val cl = areaClone
     cl.add(other.area)
-    //setArea(cl)
     new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))
+    //new Polygon(parents,WeilerAthertonClipping.union(pathList.head,other.pathList.head))
   }
 
   def setArea(newArea: Area): Polygon = new Polygon(parents, Polygon.areaToPoints(newArea))
@@ -395,6 +310,9 @@ object Polygon {
   val contTreshold = 0.00000000000001d
   val areaTreshold = 0.0000001d
 
+  val EmptyPath=new util.clipping.Path2D.Double
+  val EmptyArea=new util.clipping.Area(EmptyPath)
+
   def decode(text: String): (Polygon, Int) = {
     val end = text.indexOf(']', 3)
     val parts = text.substring(3, end).split('|')
@@ -405,6 +323,23 @@ object Polygon {
 
   def areaToPoints(area: Area): Seq[PointList] = {
     val iter = area.getPathIterator(null)
+    //print("wind :"+iter.getWindingRule()==PathIterator.WIND_NON_ZERO)
+    val retArray = new Array[Double](6)
+    val pathList = new collection.mutable.ArrayBuffer[PointList]()
+    var pList: collection.mutable.ArrayBuffer[VectorConstant] = null
+    while (!iter.isDone) {
+      iter.currentSegment(retArray) match {
+        case PathIterator.SEG_MOVETO => pList = collection.mutable.ArrayBuffer[VectorConstant](new VectorConstant(retArray(0), retArray(1), 0))
+        case PathIterator.SEG_LINETO => pList += new VectorConstant(retArray(0), retArray(1), 0)
+        case PathIterator.SEG_CLOSE => pathList += PointList(pList.toSeq)
+      }
+      iter.next()
+    }
+    pathList.toSeq
+  }
+
+  def newAreaToPoints(area: util.clipping.Area): Seq[PointList] = {
+    val iter = area.getPathIterator()
     //print("wind :"+iter.getWindingRule()==PathIterator.WIND_NON_ZERO)
     val retArray = new Array[Double](6)
     val pathList = new collection.mutable.ArrayBuffer[PointList]()
@@ -458,11 +393,34 @@ object Polygon {
     new Polygon(for (_ <- 0 until file.readInt) yield Reference(file), for (_ <- 0 until file.readInt) yield readPointList(file))
   }
 
-  def readPointList(file: DataInput) = PointList(for (_ <- 0 until file.readInt) yield {
+  def readPointList(file: DataInput): PointList = PointList(for (_ <- 0 until file.readInt) yield {
     file.readByte
     new VectorConstant(file.readDouble, file.readDouble, file.readDouble)
   })
 
+  def toPath2d(list:Seq[VectorConstant]): util.clipping.Path2D.Double ={
+    val pa = new util.clipping.Path2D.Double
+    if(list.size > 2) {
+        pa.moveTo(list.head.x, list.head.y)
+        for (ix <- 1 until list.size;p=list(ix))
+          pa.lineTo(p.x, p.y)
+        pa.closePath()
+    }
+    pa
+  }
+
+  def toPath2d(list:Iterator[VectorConstant]): util.clipping.Path2D.Double ={
+    val pa = new util.clipping.Path2D.Double
+    if (!list.hasNext) pa
+    else {
+      val head=list.next()
+      pa.moveTo(head.x, head.y)
+      for(p<-list)
+        pa.lineTo(p.x, p.y)
+      pa.closePath()
+    }
+    pa
+  }
 
 }
 

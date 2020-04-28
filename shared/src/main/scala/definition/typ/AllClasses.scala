@@ -30,6 +30,10 @@ abstract class AllClasses[B <: AbstractObjectClass]  {
 
   def getBlockClassByName(aname:String): Option[BlockClass] =blockClassList.valuesIterator.find(_.name==aname)
 
+  def exists(name:String): Boolean =classList.valuesIterator.exists(_.name == name)
+
+  def exists(id:Int): Boolean =classList.keysIterator.contains(id)
+
   // resolves all superfields from all classes. Will be called after reading all classes from XLM
   def resolveFields(): Unit = for (cl <- classList.valuesIterator)
     cl.resolveSuperFields()
