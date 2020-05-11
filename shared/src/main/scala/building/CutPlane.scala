@@ -35,4 +35,4 @@ class CutPlane(val ref:Reference,val name:String,val pos:VectorConstant,val dir:
   override def toString: String =name
 }
 
-object NoCutPlane extends CutPlane(EMPTY_REFERENCE,"Keine",NULLVECTOR,NULLVECTOR,0d,0)
+object NoCutPlane extends CutPlane(EMPTY_REFERENCE,"Alles",NULLVECTOR,NULLVECTOR,0d,0)

@@ -263,12 +263,12 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
   }
 
   def subtract(other: Polygon): Polygon = {
-    /*val cl = areaClone
+    val cl = areaClone
     cl.subtract(other.area)
-    new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))*/
-    val narea=new util.clipping.Area(toPathNew)
+    new Polygon(parents ++ other.parents, Polygon.areaToPoints(cl))
+    /*val narea=new util.clipping.Area(toPathNew)
     narea.subtract(new util.clipping.Area(other.toPathNew))
-    new Polygon(parents ++ other.parents, Polygon.newAreaToPoints(narea))
+    new Polygon(parents ++ other.parents, Polygon.newAreaToPoints(narea))*/
 
     /*val fullAndHoles: Map[Boolean, Seq[PointList]] =pathList.groupBy(_.isClockWise)
     println("FH:"+fullAndHoles)

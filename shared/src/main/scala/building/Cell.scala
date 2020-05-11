@@ -3,7 +3,8 @@ package building
 import definition.data.{Referencable, Reference}
 import definition.expression.{Constant, IntList}
 
-class Cell(model:AbstractBuildingModel,val ref:Reference,val topPlaneID:Int,val bottomPlaneID:Int,val wallPlaneIDs:Array[Int],val room:Option[Room]) extends Referencable {
+class Cell(model:AbstractBuildingModel,val ref:Reference,val topPlaneID:Int,val bottomPlaneID:Int,val wallPlaneIDs:Array[Int],
+           val room:Option[Room]) extends Referencable {
   def this(nmodel: AbstractBuildingModel, nref:Reference, ndata: Seq[Constant]) =
     this(nmodel,nref, ndata(0).toInt, ndata(1).toInt,
     ndata(2) match {
@@ -17,10 +18,10 @@ class Cell(model:AbstractBuildingModel,val ref:Reference,val topPlaneID:Int,val 
 
   def isLevelPlane(otherPlaneID:Int): Boolean =otherPlaneID==topPlaneID || otherPlaneID== bottomPlaneID
 
-
   def iterateWallNeighboars(otherPlaneID:Int): Iterator[Plane] ={
     val wallIx=wallPlaneIDs.indexOf(otherPlaneID)
-    if(wallIx == -1) throw new IllegalArgumentException("Plane "+otherPlaneID+" is not part of this cell "+this)
+    if(wallIx == -1) throw new IllegalArgumentException("iterate walls Plane "+otherPlaneID+" is not part of this cell "+
+      this.toString)
     new Iterator[Plane] {
       var state= 0
       override def hasNext: Boolean = state<4
@@ -38,4 +39,6 @@ class Cell(model:AbstractBuildingModel,val ref:Reference,val topPlaneID:Int,val 
       }
     }
   }
+
+  override def toString:String=this.getClass.getSimpleName+"("+ref+" top:"+topPlaneID+" bottom:"+bottomPlaneID+" walls:"+wallPlaneIDs.mkString(",")+")"
 }
