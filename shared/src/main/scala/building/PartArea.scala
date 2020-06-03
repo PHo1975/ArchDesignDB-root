@@ -2,11 +2,7 @@ package building
 
 import definition.data.{Referencable, Reference}
 import definition.expression._
-import util.Log
 import util.clipping.Area
-
-import scala.collection.mutable.ArrayBuffer
-import scala.util.control.NonFatal
 
 class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int,val firstCellID:Int,val secondCellID:Int,
                val aufbau:Int,val align:Double) extends Referencable {
@@ -19,20 +15,6 @@ class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int
 
   override def toString: String ="PartArea "+ref+" defplane:"+defPlaneID+" firstCell:"+firstCellID+" secondCell:"+secondCellID
 
-
-  def pointsFromEdges(edges:Iterator[Line3D]): Iterator[VectorConstant] = try{
-    val points=ArrayBuffer[VectorConstant]()
-    val firstLine=edges.next()
-    var lastLine:Line3D=firstLine
-    for(e<-edges) {
-      points.append(e.intersectionWith(lastLine))
-      lastLine=e
-    }
-    points.append(firstLine.intersectionWith(lastLine))
-    points.iterator
-  } catch {
-    case NonFatal(e)=> Log.e("PartArea "+this.toString,e) ;Iterator.empty
-  }
 
   def createCornerPoints(cutPlane:CutPlane): Iterator[VectorConstant] ={
     val defPlane3D=defPlane.plane
@@ -61,15 +43,15 @@ class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int
     if(firstCell.isLevelPlane(defPlaneID)) {
       secondCell match {
         case Some(secCell)=>
-          val firstCellPoints  = PointList(pointsFromEdges(firstCell.wallPlaneIDs.iterator.map(
+          val firstCellPoints  = PointList(model.pointsFromEdges(firstCell.wallPlaneIDs.iterator.map(
             p=>defPlane3D.intersectionWith(model.getPlane(p).plane))).map(defPlane3D.getAreaCoords).toSeq).conterClockWise
-          val secondCellPoints=PointList(pointsFromEdges(secCell.wallPlaneIDs.iterator.map(
+          val secondCellPoints=PointList(model.pointsFromEdges(secCell.wallPlaneIDs.iterator.map(
             p=>defPlane3D.intersectionWith(model.getPlane(p).plane))).map(defPlane3D.getAreaCoords).toSeq).conterClockWise
           val intersection =VectorConstant.intersectShapes2d(firstCellPoints.points:+firstCellPoints.points.head,secondCellPoints.points:+secondCellPoints.points.head)
           val result: Seq[VectorConstant] =if(intersection.nonEmpty&&intersection.last==intersection.head) intersection.dropRight(1) else intersection
           cutPoints(result.iterator)
         case None =>
-          val points=pointsFromEdges(firstCell.wallPlaneIDs.iterator.map(p=>defPlane3D.intersectionWith(model.getPlane(p).plane)))
+          val points=model.pointsFromEdges(firstCell.wallPlaneIDs.iterator.map(p=>defPlane3D.intersectionWith(model.getPlane(p).plane)))
           val mapped: Iterator[VectorConstant] =points.map(defPlane3D.getAreaCoords)
           if(cutShape!=null&&cutShape!=Polygon.EmptyArea)
             cutPoints(mapped) else mapped
@@ -77,15 +59,15 @@ class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int
     } else { //wallplane
       secondCell match {
         case Some(secCell) =>
-          val firstCellPoints = PointList(pointsFromEdges(firstCell.iterateWallNeighboars(defPlaneID).map(
+          val firstCellPoints = PointList(model.pointsFromEdges(firstCell.iterateWallNeighboars(defPlaneID).map(
             p => defPlane3D.intersectionWith(p.plane))).map(defPlane3D.getAreaCoords).toSeq).conterClockWise
-          val secondCellPoints = PointList(pointsFromEdges(secCell.iterateWallNeighboars(defPlaneID).map(
+          val secondCellPoints = PointList(model.pointsFromEdges(secCell.iterateWallNeighboars(defPlaneID).map(
             p => defPlane3D.intersectionWith(p.plane))).map(defPlane3D.getAreaCoords).toSeq).conterClockWise
           val intersection = VectorConstant.intersectShapes2d(firstCellPoints.points :+ firstCellPoints.points.head, secondCellPoints.points :+ secondCellPoints.points.head)
           val result = if (intersection.nonEmpty&&intersection.last == intersection.head) intersection.dropRight(1) else intersection
           cutPoints(result.iterator)
         case None =>
-          val points=pointsFromEdges(firstCell.iterateWallNeighboars(defPlaneID).map(p => defPlane.plane.intersectionWith(p.plane)))
+          val points=model.pointsFromEdges(firstCell.iterateWallNeighboars(defPlaneID).map(p => defPlane.plane.intersectionWith(p.plane)))
           val mapped: Iterator[VectorConstant] =points.map(defPlane3D.getAreaCoords)
           if(cutShape!=null&&cutShape!=Polygon.EmptyArea)
             cutPoints(mapped) else mapped

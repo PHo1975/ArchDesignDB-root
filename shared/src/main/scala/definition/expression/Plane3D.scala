@@ -19,7 +19,7 @@ class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
     * it is assumed that this vector is always horizontal
     */
   lazy val areaAxisX: VectorConstant = if (dir.x == 0 && dir.y == 0) new VectorConstant(1, 0, 0)
-                                       else VectorConstant.upVector.cross(dir).unit
+                                       else dir.cross(VectorConstant.upVector).unit
   lazy val areaAxisY: VectorConstant = if (dir.x == 0 && dir.y == 0) new VectorConstant(0, 1, 0)
                                        else (VectorConstant.upVector - dirUnit * (VectorConstant.upVector * dirUnit)).unit
 
@@ -81,7 +81,7 @@ class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
     */
   def getAreaCoords(point: VectorConstant): VectorConstant = {
     val dist = point - pos
-    if (dist.isNull) NULLVECTOR else if (areaAxisX.z == 0 && areaAxisY.z == 0) {
+    if (dist.isNull) NULLVECTOR /*else if (areaAxisX.z == 0 && areaAxisY.z == 0) {
       val x = (dist.y * areaAxisY.x - dist.x * areaAxisY.y) / (areaAxisX.y * areaAxisY.x - areaAxisX.x * areaAxisY.y)
       val y = (dist.y * areaAxisX.x - dist.x * areaAxisX.y) / (areaAxisY.y * areaAxisX.x - areaAxisY.x * areaAxisX.y)
       new VectorConstant(x, y, 0d)
@@ -89,10 +89,15 @@ class Plane3D(val pos: VectorConstant, val dir: VectorConstant) {
       val x = (dist.z * areaAxisY.x - dist.x * areaAxisY.z) / (areaAxisX.z * areaAxisY.x - areaAxisX.x * areaAxisY.z)
       val y = (dist.z * areaAxisX.x - dist.x * areaAxisX.z) / (areaAxisY.z * areaAxisX.x - areaAxisY.x * areaAxisX.z)
       new VectorConstant(x, y, 0d)
-    } else {
+    } else if(areaAxisX.x==0&&areaAxisY.x==0){
       val x = (dist.z * areaAxisY.y - dist.y * areaAxisY.z) / (areaAxisX.z * areaAxisY.y - areaAxisX.y * areaAxisY.z)
       val y = (dist.z * areaAxisX.y - dist.y * areaAxisX.z) / (areaAxisY.z * areaAxisX.y - areaAxisY.y * areaAxisX.z)
       new VectorConstant(x, y, 0d)
+    }*/ else {
+      val scalx=dist*areaAxisX / (areaAxisX * areaAxisX)
+      val scaly=dist*areaAxisY / (areaAxisY * areaAxisY)
+      //println("scalex:"+scalx)
+      new VectorConstant(scalx,scaly,0)
     }
   }
 

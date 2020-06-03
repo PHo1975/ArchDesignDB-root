@@ -38,12 +38,12 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
     *         hitpoint is in other line when positionOnOtherLine >=0 & <=1
     */
   def getIntersectionWith(op1: VectorConstant, op2: VectorConstant): Seq[(Double, VectorConstant)] = {
-    val ody = op2.y - op1.y
-    val odx = op2.x - op1.x
+    val ody: Double = op2.y - op1.y
+    val odx: Double = op2.x - op1.x
     val d = ody * dx - odx * dy
     if (d != 0) {
-      val ua = (odx * (p1.y - op1.y) - ody * (p1.x - op1.x)) / d
-      val ub = (dx * (p1.y - op1.y) - dy * (p1.x - op1.x)) / d
+      val ua: Double = (odx * (p1.y - op1.y) - ody * (p1.x - op1.x)) / d
+      val ub: Double = (dx * (p1.y - op1.y) - dy * (p1.x - op1.x)) / d
       //println("UA = "+ua)
       if ((ua == 0 && VectorConstant.pointLocation2D(op1, op2, p2) > 0) ||
         (ua == 1 && VectorConstant.pointLocation2D(op1, op2, p1) > 0)) Seq.empty

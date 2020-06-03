@@ -39,5 +39,6 @@ object StyleService {
 
 trait AbstractLineStyleHandler {
   def createStroke(scale: Double, width: Float, styleIx: Int): BasicStroke
+  def styles: Seq[LineStyle]
 }
 
