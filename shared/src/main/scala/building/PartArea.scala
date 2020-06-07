@@ -4,11 +4,12 @@ import definition.data.{Referencable, Reference}
 import definition.expression._
 import util.clipping.Area
 
+// when Align +1000d, flip layers
 class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int,val firstCellID:Int,val secondCellID:Int,
-               val aufbau:Int,val align:Double) extends Referencable {
+               val aufbau:Int,val align:Double,val flip:Boolean) extends Referencable {
   def this(nref:Reference,ndata:Seq[Constant],nmodel: AbstractBuildingModel)={
     this(nmodel,nref,ndata(0).toInt,ndata(1).toInt,
-      ndata(2).toInt,ndata(3).toInt,ndata(4).toDouble)
+      ndata(2).toInt,ndata(3).toInt,if(ndata(4).toDouble>990d)ndata(4).toDouble-1000 else ndata(4).toDouble,ndata(4).toDouble>990d)
   }
 
   def defPlane: Plane =model.getPlane(defPlaneID)

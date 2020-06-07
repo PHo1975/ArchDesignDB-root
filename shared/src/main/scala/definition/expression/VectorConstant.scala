@@ -68,9 +68,18 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
 
   def +(ox: Double, oy: Double, oz: Double) = new VectorConstant(x + ox, y + oy, z + oz)
 
-  def <(other: VectorConstant): Boolean = if (x == other.x) y < other.y else x < other.x
+  def <(other: VectorConstant): Boolean ={
+    val rx=math.round(x*tolFact)
+    val ox=math.round(other.x*tolFact)
+    if (rx != ox) rx<ox else {
+      val ry=math.round(y*tolFact)
+      val oy=math.round(other.y*tolFact)
+      if(ry!=oy) ry<oy else
+        math.round(z * tolFact) < math.round(other.z * tolFact)
+    }
+  }
 
-  def >(other: VectorConstant): Boolean = if (x == other.x) y > other.y else x > other.x
+  def >(other: VectorConstant): Boolean = if (x != other.x) x>other.x else if(y!=other.y) y>other.y else z>other.z
 
   def angleBetween(withOther: VectorConstant): Double = Math.acos(cosBetween(withOther)) * 180d / math.Pi
 
@@ -102,7 +111,7 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
   def squareDistanceTo(ox: Double, oy: Double, oz: Double): Double = {
     val dx = x - ox
     val dy = y - oy
-    val dz = y - oy
+    val dz = y - oz
     dx * dx + dy * dy + dz * dz
   }
 
@@ -137,6 +146,11 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
     */
   def isLinearyDependentFrom(other: VectorConstant): Boolean =
     det2D(other.x, other.y, x, y) == 0 && det2D(other.x, other.z, x, z) == 0 && det2D(other.y, other.z, y, z) == 0
+
+  def isNearlyLinearyDependentFrom(other: VectorConstant): Boolean =
+    Math.abs(det2D(other.x, other.y, x, y)) < tolerance &&
+    Math.abs(det2D(other.x, other.z, x, z)) < tolerance &&
+    Math.abs(det2D(other.y, other.z, y, z)) < tolerance
 
   /** checks if this point is in the segment between p1 and p2
     * when this point is on the line from p1 to p2
@@ -211,6 +225,8 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
     if (xValue.isDefined || yValue.isDefined || zValue.isDefined) Some(new VectorConstant(xValue.getOrElse(x), yValue.getOrElse(y), zValue.getOrElse(z)))
     else None
   }
+
+  def similar(b:VectorConstant): Boolean =math.abs(x - b.x) < tolerance && (math.abs(y - b.y) < tolerance) && (math.abs(z - b.z) < tolerance)
 
   private[expression] def this(in: DataInput) = this(in.readDouble, in.readDouble, in.readDouble)
 }
@@ -289,6 +305,7 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
 
 object VectorConstant {
   val tolerance = 0.0000001d
+  val tolFact=10000000d
   val PI2: Double = Math.PI * 2d
   val alignTreshold = 0.00001d
   val pointOrdering: Ordering[VectorConstant] = (a: VectorConstant, b: VectorConstant) => if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y < b.y) -1 else if (a.y > b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
