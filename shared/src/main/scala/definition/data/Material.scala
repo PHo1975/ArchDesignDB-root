@@ -29,7 +29,7 @@ case class ShellLayer(material:Material, thickness:Double, lineFrom:Int, hatchFr
     data.fieldValue(4).toInt,lineStyleHandler.styles(data.fieldValue(5).toInt),data.fieldValue(6).toInt,
       data.fieldValue(7).toInt,data.fieldValue(8).toInt)
   def rolePriority: Int =4-role
-  override def toString: String =(if(thickness==0)"" else "%3.2f".format(thickness*100)+" cm ") +material.name
+  override def toString: String =(if(thickness==0)"" else "%3.2f".format(thickness*100)+" cm ") +material.name+"(P:"+priority+")"
 }
 
 

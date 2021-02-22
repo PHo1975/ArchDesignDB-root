@@ -3,10 +3,9 @@
   */
 package definition.comm
 
-import java.io._
-
 import definition.data._
 
+import java.io._
 import scala.collection.immutable.Seq
 import scala.collection.mutable
 import scala.util.parsing.combinator._
@@ -43,7 +42,7 @@ case class ListValue[T](override val name: String, override val value: collectio
   def writeString: String = "{" + UserSetting.quoteString(name) + ": [" + value.map {
     case i: Int => i.toString
     case s: String => UserSetting.quoteString(s)
-    case r: Reference => r.sToString()
+    case r: Reference => r.sToString
     case (e1, e2) => "(" + e1 + ":" + e2 + ")"
     case g: PropertyGroup => g.writeString
   }.mkString(",") + "] }"

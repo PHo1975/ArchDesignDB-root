@@ -3,11 +3,10 @@
   */
 package definition.data
 
-import java.io.{DataInput, DataOutput}
-
 import definition.typ.AllClasses
 import util.Log
 
+import java.io.{DataInput, DataOutput}
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
@@ -16,11 +15,11 @@ import scala.util.matching.Regex
   */
 @SerialVersionUID(24276L) case class Reference(typ: Int, instance: Int) extends Referencable // with Serializable
 {
-  def sToString(): String = "(" + typ + "," + instance + ")"
+  def sToString: String = "(" + typ + "," + instance + ")"
 
-  def lToString(): String = "(" + AllClasses.get.getClassByID(typ).name + " #" + instance + ")"
+  def lToString: String = "(" + AllClasses.get.getClassByID(typ).name + " #" + instance + ")"
 
-  def bToString(): String = typ.toString + "," + instance
+  def bToString: String = typ.toString + "," + instance
 
   override def write(file: DataOutput): Unit = {
     file.writeInt(typ)

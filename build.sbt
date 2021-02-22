@@ -3,7 +3,7 @@
 name:= "wurzel"
 lazy val root= (project in file (".")).
   aggregate(pitJS,pitJVM).
-  settings(scalaVersion:="2.13.1",
+  settings(scalaVersion:="2.13.4",
     publish:={},
     publishLocal:={},
     libraryDependencies:= libraryDependencies.value ++ Seq( "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",

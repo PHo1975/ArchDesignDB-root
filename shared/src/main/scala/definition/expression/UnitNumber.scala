@@ -1,11 +1,10 @@
 package definition.expression
 
 
-import java.io.{DataInput, DataOutput}
-
 import definition.typ.DataType
 import util.Log
 
+import java.io.{DataInput, DataOutput}
 import scala.collection.immutable.TreeSet
 import scala.collection.{SortedSet, immutable}
 import scala.util.control.NonFatal
@@ -154,7 +153,8 @@ case class UnitNumber(value: Double, unitFraction: UnitFraction) extends Constan
 object UnitNumber {
   implicit val ordering: Ordering[UnitElem] = Ordering.by[UnitElem, String](_.name)
   val emptySet: TreeSet[UnitElem] = collection.immutable.TreeSet[UnitElem]()(ordering)
-  val emptyFraction = UnitFraction(emptySet, emptySet)
+  val emptyFraction: UnitFraction = UnitFraction(emptySet, emptySet)
+  val emptyUnitNumber: UnitNumber = UnitNumber(0,emptyFraction)
   val stopChars: Array[Char] = Array(')', ',', ';')
 
   def listsFullEquals(list1: SortedSet[UnitElem], list2: SortedSet[UnitElem]): Boolean = list1.iterator.corresponds(list2.iterator)(_.fullEquals(_))

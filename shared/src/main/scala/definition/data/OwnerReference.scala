@@ -1,9 +1,8 @@
 package definition.data
 
-import java.io.{DataInput, DataOutput}
-
 import util.Log
 
+import java.io.{DataInput, DataOutput}
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
@@ -18,9 +17,9 @@ import scala.util.matching.Regex
     ownerRef.write(out)
   }
 
-  override def toString: String = (if (ownerRef == null) "()" else ownerRef.sToString()) + "|" + ownerField
+  override def toString: String = (if (ownerRef == null) "()" else ownerRef.sToString) + "|" + ownerField
 
-  def sToString: String = ownerRef.bToString() + "," + ownerField
+  def sToString: String = ownerRef.bToString + "," + ownerField
 
 }
 

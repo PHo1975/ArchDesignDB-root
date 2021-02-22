@@ -8,7 +8,7 @@ import util.clipping.Area
 class PartArea(model: AbstractBuildingModel,val ref:Reference,val defPlaneID:Int,val firstCellID:Int,val secondCellID:Int,
                val aufbau:Int,val align:Double,val flip:Boolean) extends Referencable {
   def this(nref:Reference,ndata:Seq[Constant],nmodel: AbstractBuildingModel)={
-    this(nmodel,nref,ndata(0).toInt,ndata(1).toInt,
+    this(nmodel,nref,ndata.head.toInt,ndata(1).toInt,
       ndata(2).toInt,ndata(3).toInt,if(ndata(4).toDouble>990d)ndata(4).toDouble-1000 else ndata(4).toDouble,ndata(4).toDouble>990d)
   }
 

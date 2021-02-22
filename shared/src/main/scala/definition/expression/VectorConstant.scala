@@ -3,10 +3,9 @@
   */
 package definition.expression
 
-import java.io.{DataInput, DataOutput}
-
 import definition.typ.DataType
 
+import java.io.{DataInput, DataOutput}
 import scala.collection.mutable.ArrayBuffer
 
 /** a 3D Vector
@@ -68,18 +67,18 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
 
   def +(ox: Double, oy: Double, oz: Double) = new VectorConstant(x + ox, y + oy, z + oz)
 
-  def <(other: VectorConstant): Boolean ={
-    val rx=math.round(x*tolFact)
-    val ox=math.round(other.x*tolFact)
-    if (rx != ox) rx<ox else {
-      val ry=math.round(y*tolFact)
-      val oy=math.round(other.y*tolFact)
-      if(ry!=oy) ry<oy else
+  def <(other: VectorConstant): Boolean = {
+    val rx = math.round(x * tolFact)
+    val ox = math.round(other.x * tolFact)
+    if (rx != ox) rx < ox else {
+      val ry = math.round(y * tolFact)
+      val oy = math.round(other.y * tolFact)
+      if (ry != oy) ry < oy else
         math.round(z * tolFact) < math.round(other.z * tolFact)
     }
   }
 
-  def >(other: VectorConstant): Boolean = if (x != other.x) x>other.x else if(y!=other.y) y>other.y else z>other.z
+  def >(other: VectorConstant): Boolean = if (x != other.x) x > other.x else if (y != other.y) y > other.y else z > other.z
 
   def angleBetween(withOther: VectorConstant): Double = Math.acos(cosBetween(withOther)) * 180d / math.Pi
 
@@ -149,8 +148,8 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
 
   def isNearlyLinearyDependentFrom(other: VectorConstant): Boolean =
     Math.abs(det2D(other.x, other.y, x, y)) < tolerance &&
-    Math.abs(det2D(other.x, other.z, x, z)) < tolerance &&
-    Math.abs(det2D(other.y, other.z, y, z)) < tolerance
+      Math.abs(det2D(other.x, other.z, x, z)) < tolerance &&
+      Math.abs(det2D(other.y, other.z, y, z)) < tolerance
 
   /** checks if this point is in the segment between p1 and p2
     * when this point is on the line from p1 to p2
@@ -193,9 +192,9 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
     if (math.abs(other.x) > VectorConstant.tolerance) x / other.x
     else if (math.abs(other.y) > VectorConstant.tolerance) y / other.y
     else if (math.abs(other.z) > VectorConstant.tolerance) z / other.z
-         /*if(other.x!=0) x/other.x
-         else if(other.y!=0) y/other.y
-         else if(other.z!=0) z/other.z*/
+    /*if(other.x!=0) x/other.x
+    else if(other.y!=0) y/other.y
+    else if(other.z!=0) z/other.z*/
     else 0d
   }
 
@@ -219,14 +218,20 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
   def flipY = new VectorConstant(x, -y, z)
 
   def alignValues: Option[VectorConstant] = {
-    val xValue = {val rounded = Math.round(x * 1000000d) / 1000000d; if (x != rounded) Some(rounded) else None}
-    val yValue = {val rounded = Math.round(y * 1000000d) / 1000000d; if (y != rounded) Some(rounded) else None}
-    val zValue = {val rounded = Math.round(z * 1000000d) / 1000000d; if (z != rounded) Some(rounded) else None}
+    val xValue = {
+      val rounded = Math.round(x * 1000000d) / 1000000d; if (x != rounded) Some(rounded) else None
+    }
+    val yValue = {
+      val rounded = Math.round(y * 1000000d) / 1000000d; if (y != rounded) Some(rounded) else None
+    }
+    val zValue = {
+      val rounded = Math.round(z * 1000000d) / 1000000d; if (z != rounded) Some(rounded) else None
+    }
     if (xValue.isDefined || yValue.isDefined || zValue.isDefined) Some(new VectorConstant(xValue.getOrElse(x), yValue.getOrElse(y), zValue.getOrElse(z)))
     else None
   }
 
-  def similar(b:VectorConstant): Boolean =math.abs(x - b.x) < tolerance && (math.abs(y - b.y) < tolerance) && (math.abs(z - b.z) < tolerance)
+  def similar(b: VectorConstant): Boolean = math.abs(x - b.x) < tolerance && (math.abs(y - b.y) < tolerance) && (math.abs(z - b.z) < tolerance)
 
   private[expression] def this(in: DataInput) = this(in.readDouble, in.readDouble, in.readDouble)
 }
@@ -237,6 +242,7 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
   * @param dir Directional vector of the line
   */
 case class Line3D(pos: VectorConstant, dir: VectorConstant) {
+
   import VectorConstant._
 
   lazy val dirPoint: VectorConstant = pos + dir
@@ -246,14 +252,14 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
     if (dir.isLinearyDependentFrom(other.dir))
       throw new ArithmeticException("Intersection not possible, vectors are linerary dependent " + this + " " + other)
     val det = VectorConstant.determinant(dir, other.dir, dif)
-    if (Math.abs(det)<tolerance) { // there is an intersection
+    if (Math.abs(det) < tolerance) { // there is an intersection
       val det2 = det2D(dir.x, dir.y, other.dir.x, other.dir.y)
       if (det2 != 0) {
         val det3 = det2D(dif.x, dif.y, other.dir.x, other.dir.y)
         return pos + (dir * (det3 / det2))
       } else {
-        val det4= det2D(dir.x, dir.z, other.dir.x, other.dir.z)
-        if (det4!= 0d) {
+        val det4 = det2D(dir.x, dir.z, other.dir.x, other.dir.z)
+        if (det4 != 0d) {
           val det5 = det2D(dif.x, dif.z, other.dir.x, other.dir.z)
           return pos + (dir * (det5 / det4))
         } else {
@@ -265,7 +271,7 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
         }
       }
     }
-    throw new ArithmeticException("Cant find intersection between " + this + " and " + other+" det:"+det)
+    throw new ArithmeticException("Cant find intersection between " + this + " and " + other + " det:" + det)
   }
 
   def distanceTo(point: VectorConstant): Double = orthogonalThrough(point).toDouble
@@ -305,7 +311,7 @@ case class Line3D(pos: VectorConstant, dir: VectorConstant) {
 
 object VectorConstant {
   val tolerance = 0.0000001d
-  val tolFact=10000000d
+  val tolFact = 10000000d
   val PI2: Double = Math.PI * 2d
   val alignTreshold = 0.00001d
   val pointOrdering: Ordering[VectorConstant] = (a: VectorConstant, b: VectorConstant) => if (a.x < b.x) -1 else if (a.x > b.x) 1 else if (a.y < b.y) -1 else if (a.y > b.y) 1 else if (a.z < b.z) -1 else if (a.z > b.z) 1 else 0
@@ -375,12 +381,12 @@ object VectorConstant {
     else None
   }
 
-  def intersectInSegment2D(a1:VectorConstant, a2:VectorConstant, b1:VectorConstant, b2:VectorConstant):Option[VectorConstant]={
-    intersection2D(a1,a2,b1,b2).filter(p=>p.isInSegment(a1,a2)&&p.isInSegment(b1,b2))
+  def intersectInSegment2D(a1: VectorConstant, a2: VectorConstant, b1: VectorConstant, b2: VectorConstant): Option[VectorConstant] = {
+    intersection2D(a1, a2, b1, b2).filter(p => p.isInSegment(a1, a2) && p.isInSegment(b1, b2))
   }
 
-  def intersectInSegment2DExclusive(a1:VectorConstant,a2:VectorConstant,b1:VectorConstant,b2:VectorConstant):Option[VectorConstant]={
-    intersection2D(a1,a2,b1,b2).filter(p=>p.isInSegmentExclusive(a1,a2)&&p.isInSegmentExclusive(b1,b2))
+  def intersectInSegment2DExclusive(a1: VectorConstant, a2: VectorConstant, b1: VectorConstant, b2: VectorConstant): Option[VectorConstant] = {
+    intersection2D(a1, a2, b1, b2).filter(p => p.isInSegmentExclusive(a1, a2) && p.isInSegmentExclusive(b1, b2))
   }
 
 
@@ -403,6 +409,7 @@ object VectorConstant {
 
   /**
     * Get Cos Angle between 3 points
+    *
     * @param p1 1. point
     * @param p2 2. point
     * @param p3 3. point
@@ -420,67 +427,70 @@ object VectorConstant {
   def toConterClockWise2D(list:Seq[VectorConstant]): Seq[VectorConstant] =if(isConterClockWise2D(list))list else list.reverse
   def toClockWise2D(list:Seq[VectorConstant]): Seq[VectorConstant] =if(!isConterClockWise2D(list))list else list.reverse*/
 
-  def clipShapeAtLine2D(l1:VectorConstant,l2:VectorConstant,shapePoints:Seq[VectorConstant]): Seq[VectorConstant] ={
-    def in(p:VectorConstant)=pointLocation2D(l1,l2,p)>=0
-    val result=ArrayBuffer[VectorConstant]()
-    var lastPoint=shapePoints.head
-    var lastPointIn=in(lastPoint)
-    if(lastPointIn)result+=lastPoint
-    for(i<-1 until shapePoints.size) {
-      val nextPoint=shapePoints(i)
-      if(in(nextPoint)) {
-        if(lastPointIn) result+=nextPoint
+  def clipShapeAtLine2D(l1: VectorConstant, l2: VectorConstant, shapePoints: Seq[VectorConstant]): Seq[VectorConstant] = {
+    def in(p: VectorConstant) = pointLocation2D(l1, l2, p) >= 0
+
+    val result = ArrayBuffer[VectorConstant]()
+    var lastPoint = shapePoints.head
+    var lastPointIn = in(lastPoint)
+    if (lastPointIn) result += lastPoint
+    for (i <- 1 until shapePoints.size) {
+      val nextPoint = shapePoints(i)
+      if (in(nextPoint)) {
+        if (lastPointIn) result += nextPoint
         else {
-          for(inter<-intersection2D(l1,l2,lastPoint,nextPoint)) result+=inter
-          result+=nextPoint
+          for (inter <- intersection2D(l1, l2, lastPoint, nextPoint)) result += inter
+          result += nextPoint
         }
       } else { //next point is out
-        if(lastPointIn) for(inter<-intersection2D(l1,l2,lastPoint,nextPoint))
-          result+=inter
+        if (lastPointIn) for (inter <- intersection2D(l1, l2, lastPoint, nextPoint))
+          result += inter
       }
-      lastPoint=nextPoint
-      lastPointIn=in(lastPoint)
+      lastPoint = nextPoint
+      lastPointIn = in(lastPoint)
     }
     result.toSeq
   }
 
-  def intersectShapes2d(shape:Seq[VectorConstant],cutShape:Seq[VectorConstant]): Seq[VectorConstant] ={
-    if(shape.size<4 || cutShape.size<4) Seq.empty else {
-      var restShape:Seq[VectorConstant]=shape
-      for(Seq(a,b)<-cutShape.sliding(2);if restShape.size>=4){
-        restShape=clipShapeAtLine2D(a,b,restShape)
-        if(restShape.nonEmpty&&restShape.last!=restShape.head) restShape=restShape:+restShape.head
+  def intersectShapes2d(shape: Seq[VectorConstant], cutShape: Seq[VectorConstant]): Seq[VectorConstant] = {
+    if (shape.size < 4 || cutShape.size < 4) Seq.empty else {
+      var restShape: Seq[VectorConstant] = shape
+      for (Seq(a, b) <- cutShape.sliding(2); if restShape.size >= 4) {
+        restShape = clipShapeAtLine2D(a, b, restShape)
+        if (restShape.nonEmpty && restShape.last != restShape.head) restShape = restShape :+ restShape.head
       }
       restShape
     }
   }
-  
+
   /** checks, if the Segment(P1,P2) crosses an horzontal Ray starting from Checkpoint going to + x */
-  def horRayHit2d(p1:VectorConstant, op1:VectorConstant, op2:VectorConstant): Boolean ={
-    println("Check segment p1:"+p1+" op1:"+op1+" "+op2)
-    if((op1.y>p1.y&& op2.y>p1.y) || (op1.x<p1.x&&op2.x<p1.x||
-       (op1.y<p1.y&& op2.y<p1.y) || op1.y==op2.y )){println("no "+op1+" - "+op2);false}
+  def horRayHit2d(p1: VectorConstant, op1: VectorConstant, op2: VectorConstant): Boolean = {
+    //println("Check segment p1:" + p1 + " op1:" + op1 + " " + op2)
+    if ((op1.y > p1.y && op2.y > p1.y) || (op1.x < p1.x && op2.x < p1.x ||
+      (op1.y < p1.y && op2.y < p1.y) || op1.y == op2.y)) {
+      false
+    }
     else {
       val dx = 1
-      val p2x=p1.x+1
+      //val p2x = p1.x + 1
       val ody = op2.y - op1.y
       val odx = op2.x - op1.x
       val d = ody * dx
-      val ua = (odx * (p1.y-op1.y) - ody * (p1.x - op1.x)) / d
-      val result=VectorConstant( p1.x + ua * dx, p1.y,0)
-      println("HorRayHit chh p1:"+op1+" p2:"+op2+" d:"+d+" ua:"+ua+" "+result+" "+result.isInSegment(op1,op2))
-      if(ua>0)
-        VectorConstant( p1.x + ua * dx, p1.y,0).isInSegment(op1,op2)
+      val ua = (odx * (p1.y - op1.y) - ody * (p1.x - op1.x)) / d
+      val result = VectorConstant(p1.x + ua * dx, p1.y, 0)
+      //println("HorRayHit chh p1:" + op1 + " p2:" + op2 + " d:" + d + " ua:" + ua + " " + result + " " + result.isInSegment(op1, op2))
+      if (ua > 0)
+        VectorConstant(p1.x + ua * dx, p1.y, 0).isInSegment(op1, op2)
       else false
     }
   }
 
-  def insideShape(p:VectorConstant,shape:Seq[VectorConstant]): Boolean =if(shape.size<3) false
-  else{
-    val sh=if(shape.head!=shape.last)shape :+ shape.head else shape
-    val hits=sh.sliding(2).count(s => horRayHit2d(p, s.head, s.last))
-    println("hits:"+hits)
-     (hits  % 2) >0
+  def insideShape(p: VectorConstant, shape: Seq[VectorConstant]): Boolean = if (shape.size < 3) false
+  else {
+    val sh = if (shape.head != shape.last) shape :+ shape.head else shape
+    val hits = sh.sliding(2).count(s => horRayHit2d(p, s.head, s.last))
+    println("hits:" + hits)
+    (hits % 2) > 0
   }
 
 }
@@ -490,3 +500,4 @@ object NULLLINE extends Line3D(NULLVECTOR, NULLVECTOR)
 
 object NULLVECTOR extends VectorConstant(0d, 0d, 0d)
 
+object UNDEFINED_VECTOR extends VectorConstant(java.lang.Double.MIN_VALUE,java.lang.Double.MIN_VALUE,java.lang.Double.MIN_VALUE)

@@ -4,11 +4,11 @@ package definition.expression
 
 import java.awt.geom.Path2D.{Double => Path2dDouble}
 //import util.clipping.{Area, Path2D, PathIterator}
-import java.awt.geom._
-import java.io.{DataInput, DataOutput}
-
 import definition.data.{Referencable, Reference}
 import definition.typ.DataType
+
+import java.awt.geom._
+import java.io.{DataInput, DataOutput}
 
 //case class InterPoint(nx:Double,ny:Double) extends VectorConstant(nx,ny,0)
 
@@ -20,7 +20,7 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
 
   def diff: VectorConstant = p2 - p1
 
-  def toLine3D = Line3D(p1, p2 - p1)
+  def toLine3D: Line3D = Line3D(p1, p2 - p1)
 
   def XYAngle: Double = math.atan2(dy, dx)
 
@@ -301,6 +301,8 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
 
       override def next(): VectorConstant = currentIterator.next
     }
+
+  def sameGeometry(other:Polygon):Boolean= pathList.equals(other.pathList)
 
 }
 
