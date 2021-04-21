@@ -75,14 +75,19 @@ class CommonFuncMan extends FunctionManager {
       StringConstant("%,.2f €".format(x.head.getValue.toDouble))
     }),
     "numberformat" -> FEntry(List(ParDes(DataType.undefined), ParDes(DataType.StringTyp)), x => {
-      val num = x.head.getValue.toDouble
+      val value=x.head.getValue
+      val num = value.toDouble
       val form = x(1).getValue.toString
       //val exp=math.pow(10,digits)
       try
-        StringConstant(form.format(num) + (x.head.getValue match {
-          case ut: UnitNumber => " " + ut.unitFraction.toString
-          case _ => ""
-        }))
+        x.head.getValue match {
+          case ut: UnitNumber => if(onlyIntUnits.contains(ut.unitFraction.toString)&&num==Math.round(num))
+            StringConstant(num.toInt.toString+" " + ut.unitFraction.toString)
+          else StringConstant(form.format(num) +" "+ut.unitFraction.toString)
+          case _ => StringConstant(form.format(num)  )
+        }
+
+
       catch {
         case NonFatal(e) => StringConstant(e.getMessage)
       }
@@ -105,6 +110,8 @@ class CommonFuncMan extends FunctionManager {
       new DoubleConstant(x.head.getValue.toDouble)
     )
   )
+
+  def onlyIntUnits:Array[String]=Array.empty
 
   protected val sumFunc: SingleCollFunction = new SingleCollFunction("doubleSum") {
     def childAdded(oldResult: Constant, newValue: Constant): Constant = {

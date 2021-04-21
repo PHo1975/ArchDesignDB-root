@@ -146,10 +146,10 @@ case class VectorConstant(x: Double, y: Double, z: Double) extends Constant {
   def isLinearyDependentFrom(other: VectorConstant): Boolean =
     det2D(other.x, other.y, x, y) == 0 && det2D(other.x, other.z, x, z) == 0 && det2D(other.y, other.z, y, z) == 0
 
-  def isNearlyLinearyDependentFrom(other: VectorConstant): Boolean =
-    Math.abs(det2D(other.x, other.y, x, y)) < tolerance &&
-      Math.abs(det2D(other.x, other.z, x, z)) < tolerance &&
-      Math.abs(det2D(other.y, other.z, y, z)) < tolerance
+  def isNearlyLinearyDependentFrom(other: VectorConstant,tol:Double=tolerance): Boolean =
+    Math.abs(det2D(other.x, other.y, x, y)) < tol &&
+      Math.abs(det2D(other.x, other.z, x, z)) < tol &&
+      Math.abs(det2D(other.y, other.z, y, z)) < tol
 
   /** checks if this point is in the segment between p1 and p2
     * when this point is on the line from p1 to p2
