@@ -1,6 +1,8 @@
 package definition.expression
 
-import java.awt.geom.Path2D.{Double => Path2dDouble}
+//import java.awt.geom.Path2D.{Double => Path2dDouble}
+import util.clipping.Path2D.{Double => Path2dDouble}
+
 import java.io.DataOutput
 
 object EmptyPointList extends PointList(Seq.empty)

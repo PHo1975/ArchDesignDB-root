@@ -6,7 +6,6 @@ package util.clipping
 //
 
 import java.util.Comparator
-
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -35,7 +34,7 @@ object AreaOp {
   private def addEdges(edges: ArrayBuffer[Edge], curves: ArrayBuffer[Curve], curvetag: Int): Unit = {
     val enum_ = curves.iterator
     while (  enum_.hasNext ) {
-      val c  = enum_.next.asInstanceOf[Curve]
+      val c  = enum_.next().asInstanceOf[Curve]
       if (c.getOrder > 0) edges.addOne(new Edge(c, curvetag))
     }
   }
@@ -393,7 +392,7 @@ abstract class AreaOp private() {
       val ret  = new ArrayBuffer[Curve]
       val enum_ = subcurves.iterator
       while (  enum_.hasNext  ) {
-        var link: CurveLink = enum_.next.asInstanceOf[CurveLink]
+        var link: CurveLink = enum_.next().asInstanceOf[CurveLink]
         ret.addOne(link.getMoveto)
         var nextlink: CurveLink = link
         while (

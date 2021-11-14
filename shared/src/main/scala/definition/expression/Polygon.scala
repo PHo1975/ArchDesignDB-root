@@ -2,12 +2,12 @@ package definition.expression
 
 
 
-import java.awt.geom.Path2D.{Double => Path2dDouble}
-//import util.clipping.{Area, Path2D, PathIterator}
+//import java.awt.geom.Path2D.{Double => Path2dDouble}
 import definition.data.{Referencable, Reference}
 import definition.typ.DataType
+import util.clipping.{Area, Path2D, PathIterator}
 
-import java.awt.geom._
+import java.awt.geom.Rectangle2D
 import java.io.{DataInput, DataOutput}
 
 //case class InterPoint(nx:Double,ny:Double) extends VectorConstant(nx,ny,0)
@@ -41,13 +41,13 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
     val ody: Double = op2.y - op1.y
     val odx: Double = op2.x - op1.x
     val d = ody * dx - odx * dy
-    if (d != 0) {
+    if (math.abs(d) > VectorConstant.tolerance) {
       val ua: Double = (odx * (p1.y - op1.y) - ody * (p1.x - op1.x)) / d
       val ub: Double = (dx * (p1.y - op1.y) - dy * (p1.x - op1.x)) / d
       //println("UA = "+ua)
-      if ((ua == 0 && VectorConstant.pointLocation2D(op1, op2, p2) > 0) ||
-        (ua == 1 && VectorConstant.pointLocation2D(op1, op2, p1) > 0)) Seq.empty
-      else if (ua >= 0 && ua <= 1) {
+      if ((ua == 0d && VectorConstant.pointLocation2D(op1, op2, p2) > 0d) ||
+        (ua == 1d && VectorConstant.pointLocation2D(op1, op2, p1) > 0d)) Seq.empty
+      else if (ua >= 0d && ua <= 1d) {
         val x = p1.x + ua * dx
         val y = p1.y + ua * dy
         List((ub, new VectorConstant(x, y, 0)))
@@ -61,11 +61,11 @@ class Edge(val p1: VectorConstant, val p2: VectorConstant) {
   def dy: Double = p2.y - p1.y
 
   def getCutIntersectionWith(op1: VectorConstant, op2: VectorConstant): Seq[(Double, VectorConstant)] = {
-    val cutTreshold = 0.000001
+    val cutTreshold = 0.000001d
     val ody = op2.y - op1.y
     val odx = op2.x - op1.x
     val d = ody * dx - odx * dy
-    if (d != 0) {
+    if (d != 0d) {
       val ua = (odx * (p1.y - op1.y) - ody * (p1.x - op1.x)) / d
       val ub = (dx * (p1.y - op1.y) - dy * (p1.x - op1.x)) / d
       if (ua >= -cutTreshold && ua <= 1 + cutTreshold) {
@@ -115,7 +115,7 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
   lazy val maxY: Double = if (pathList.isEmpty) Double.MinValue else pathList.reduceLeft((a, b) => if (a.maxY > b.maxY) a else b).maxY
   lazy val getAreaValue: Double = -1d * pathList.foldLeft(0d)((sum, value) => {sum + value.getArea})
   lazy val getUmfangValue:Double = pathList.foldLeft(0d)((sum,value)=>{sum+value.getUmfang})
-  lazy val path: Path2dDouble = toPath
+  lazy val path: Path2D.Double = toPath
   lazy val area = new Area(path)
   //private lazy val testPoint = new Point2D.Double
 
@@ -168,8 +168,8 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
     pa
   }
 
-  def toPathTransformed(trans: VectorConstant => VectorConstant): java.awt.geom.Path2D.Double = {
-    val pa = new java.awt.geom.Path2D.Double
+  def toPathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
+    val pa = new Path2D.Double
     if (pathList.nonEmpty) {
       for (pList <- pathList; if pList.points.size > 2) {
         val transf = trans(pList.points.head)
@@ -182,8 +182,8 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
     pa
   }
 
-  def toLinePathTransformed(trans: VectorConstant => VectorConstant): java.awt.geom.Path2D.Double = {
-    val pa = new java.awt.geom.Path2D.Double
+  def toLinePathTransformed(trans: VectorConstant => VectorConstant): Path2D.Double = {
+    val pa = new Path2D.Double
     for (lh <- pathList.headOption; ph <- lh.points.headOption; fp = trans(ph)) {
       pa.moveTo(fp.x, fp.y)
       for (ix <- 1 until lh.points.size; p = trans(lh.points(ix)))
@@ -275,7 +275,7 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
     new Polygon(parents,WeilerAthertonClipping.cut(pathList.head,other.pathList.head))*/
   }
 
-  def areaClone: Area = area.clone.asInstanceOf[Area]
+  def areaClone: Area = area.clone
 
   def add(other: Polygon): Polygon = {
     val cl = areaClone
@@ -299,7 +299,7 @@ class Polygon(private val parents: Seq[Referencable], val pathList: Seq[PointLis
         } else false
       }
 
-      override def next(): VectorConstant = currentIterator.next
+      override def next(): VectorConstant = currentIterator.next()
     }
 
   def sameGeometry(other:Polygon):Boolean= pathList.equals(other.pathList)
@@ -324,7 +324,7 @@ object Polygon {
   def decodePointList(text: String): PointList = PointList(text.split('§').view.map(VectorConstant.decode(_)._1).toIndexedSeq)
 
   def areaToPoints(area: Area): Seq[PointList] = {
-    val iter = area.getPathIterator(null)
+    val iter = area.getPathIterator()
     //print("wind :"+iter.getWindingRule()==PathIterator.WIND_NON_ZERO)
     val retArray = new Array[Double](6)
     val pathList = new collection.mutable.ArrayBuffer[PointList]()
@@ -391,7 +391,7 @@ object Polygon {
       new VectorConstant(sum._1 / size, sum._2 / size, sum._3 / size)
     }
 
-  private[expression] def apply(file: DataInput) = {
+  private[expression] def apply(file: DataInput): Polygon = {
     new Polygon(for (_ <- 0 until file.readInt) yield Reference(file), for (_ <- 0 until file.readInt) yield readPointList(file))
   }
 
@@ -428,3 +428,29 @@ object Polygon {
 
 
 object NULLPOLYGON extends Polygon(Seq.empty)
+
+object PolygonToJavaArea{
+  def toPathTransformed(poly:Polygon,trans:VectorConstant => VectorConstant)= {
+    val pa = new java.awt.geom.Path2D.Double
+    if (poly.pathList.nonEmpty) {
+      for (pList <- poly.pathList; if pList.points.size > 2) {
+        val transf = trans(pList.points.head)
+        pa.moveTo(transf.x, transf.y)
+        for (ix <- 1 until pList.points.size; p = trans(pList.points(ix)))
+          pa.lineTo(p.x, p.y)
+        pa.closePath()
+      }
+    }
+    pa
+  }
+
+  def toLinePathTransformed(poly:Polygon,trans: VectorConstant => VectorConstant) = {
+    val pa = new java.awt.geom.Path2D.Double
+    for (lh <- poly.pathList.headOption; ph <- lh.points.headOption; fp = trans(ph)) {
+      pa.moveTo(fp.x, fp.y)
+      for (ix <- 1 until lh.points.size; p = trans(lh.points(ix)))
+        pa.lineTo(p.x, p.y)
+    }
+    pa
+  }
+}

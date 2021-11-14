@@ -10,7 +10,6 @@ package util.clipping
 
 
 import java.awt.geom.Rectangle2D
-
 import scala.collection.mutable.ArrayBuffer
 
 trait PathContainer{
@@ -134,9 +133,9 @@ class Area(s:PathContainer) extends Cloneable with PathContainer {
   def isSingular: Boolean = if (this.curves.size < 3) true
   else {
     val enum_ = this.curves.iterator
-    enum_.next
+    enum_.next()
     do if (!enum_.hasNext) return true while ( {
-      enum_.next.asInstanceOf[Curve].getOrder != 0
+      enum_.next().asInstanceOf[Curve].getOrder != 0
     })
     false
   }
@@ -192,7 +191,7 @@ class Area(s:PathContainer) extends Cloneable with PathContainer {
     var crossings = 0
     var c:Curve = null
     while (  enum_.hasNext ) {
-      c = enum_.next.asInstanceOf[Curve]
+      c = enum_.next().asInstanceOf[Curve]
       crossings += c.crossingsFor(x, y)
     }
     (crossings & 1) == 1

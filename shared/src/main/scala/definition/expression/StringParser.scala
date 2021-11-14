@@ -37,7 +37,7 @@ case class ParserError(_message: String, offset: Int) extends ParserResult {
   */
 class StringParser extends JavaTokenParsers {
   override val skipWhitespace = false
-  val UnitElemMatcher: Regex ="""([a-zA-ZäöüÄÖÜ\u00A3\u20AC]+)(\d*)""".r
+  val UnitElemMatcher: Regex ="([a-zA-ZäöüÄÖÜ\u00A3\u20AC]+)(\\d*)".r
 
   def intNumber: Parser[String] =
     """-?\d+""".r
@@ -51,9 +51,9 @@ class StringParser extends JavaTokenParsers {
 
   def numberParam: Parser[String] = """\s?\d+\s?""".r
 
-  def currencySymbols: Parser[String] = """[\u00A3\u20AC]""".r
+  def currencySymbols: Parser[String] = "[\u00A3\u20AC]".r
 
-  def unitSymbol: Parser[String] = """[a-zA-ZäöüÄÖÜ\u00A3\u20AC]+""".r
+  def unitSymbol: Parser[String] = "[a-zA-ZäöüÄÖÜ\u00A3\u20AC]+".r
 
   def unitElem: Parser[UnitElem] = UnitElemMatcher ^^ {
     case UnitElemMatcher(s, n) => new UnitElem(s, if (n.isEmpty) 1 else n.toInt.toByte)
@@ -66,8 +66,8 @@ class StringParser extends JavaTokenParsers {
 
   def someNumber: Parser[String] = """-?(\d+[\.,]\d*|-?\d*[\.,]\d+|\d+)""".r
 
-  def unitNumber: Parser[Expression] = (someNumber ~ unitList ~ "/" ~ unitList) ^^ { case num ~ nom ~ _ ~ den => new UnitNumber(makeDouble(num), UnitFraction(UnitNumber.setFactory ++ nom, UnitNumber.setFactory ++ den)) } |
-    (someNumber ~ unitList) ^^ { case num ~ list => new UnitNumber(makeDouble(num), UnitFraction(UnitNumber.setFactory ++ list, UnitNumber.emptySet)) }
+  def unitNumber: Parser[Expression] = (someNumber ~ unitList ~ "/" ~ unitList) ^^ { case num ~ nom ~ _ ~ den => new UnitNumber(makeDouble(num), UnitFraction(UnitNumber.setFactory() ++ nom, UnitNumber.setFactory() ++ den)) } |
+    (someNumber ~ unitList) ^^ { case num ~ list => new UnitNumber(makeDouble(num), UnitFraction(UnitNumber.setFactory() ++ list, UnitNumber.emptySet)) }
 
   //(someNumber~  ("/".r~>unitList))^^{case num~den=>new UnitNumber(makeDouble(num),new UnitFraction(UnitNumber.emptySet,UnitNumber.setFactory++den))}
 
@@ -201,6 +201,7 @@ object StringParser extends StringParser {
         case NoSuccess(err, next) =>
           if (expectedType == DataType.StringTyp) StringConstant(text)
           else ParserError(if (err == null) "Null" else err, next.offset)
+        case other => throw new IllegalArgumentException ("other result:"+other)
       }
     }
   }

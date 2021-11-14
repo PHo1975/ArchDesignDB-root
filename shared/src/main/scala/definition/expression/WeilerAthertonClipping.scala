@@ -219,7 +219,7 @@ object WeilerAthertonClipping {
           case e: CakeIntersectInbound =>println("L:"+e)
             if(!inboundPoints.contains(e)){
               Log.e("Cant find Inbound "+e+" in List \n"+inboundPoints.mkString("|"))
-              inboundPoints.clear
+              inboundPoints.clear()
             }
           else inboundPoints -= e; e.point
           case o => println("L:"+o); o.point

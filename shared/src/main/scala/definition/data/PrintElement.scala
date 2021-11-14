@@ -3,15 +3,14 @@
   */
 package definition.data
 
+import definition.expression._
+import util.{Log, StringUtils}
+
 import java.awt.font.TextLayout
 import java.awt.geom._
 import java.awt.{BasicStroke, Color, Font, Graphics2D}
 import java.io.{DataInput, DataOutput, File}
-
-import definition.expression._
 import javax.imageio.ImageIO
-import util.{Log, StringUtils}
-
 import scala.util.control.NonFatal
 
 /**
@@ -144,8 +143,8 @@ case class DimLinePrintElement(nbounds: Rectangle2D.Float, ncolor: Color, style:
   val hdirVector = new VectorConstant(-mdirVector.y, mdirVector.x, 0)
   val origHDirVector = new VectorConstant(-origDirVector.y, origDirVector.x, 0)
   val position = new VectorConstant(nbounds.x, nbounds.y, 0)
-  val mline = Line3D(position, mdirVector)
-  val origLine = Line3D(position, origDirVector)
+  val mline: Line3D = Line3D(position, mdirVector)
+  val origLine: Line3D = Line3D(position, origDirVector)
 
   override def write(out: DataOutput): Unit = {
     super.write(out)
@@ -369,7 +368,7 @@ case class BitmapPrintElement(nbounds: Rectangle2D.Float, link: String) extends 
       try {
         val image = ImageIO.read(file)
         g.drawImage(image, ctx.toUnit(bounds.x).toInt, ctx.toUnit(bounds.y).toInt, ctx.toUnit(bounds.width).toInt, ctx.toUnit(bounds.height).toInt, null)
-      } catch {case NonFatal(e) => util.Log.e("when reading image :'" + link.toString + "' " + e.getMessage, e)}
+      } catch {case NonFatal(e) => util.Log.e("when reading image :'" + link + "' " + e.getMessage, e)}
     }
 
   }
@@ -396,7 +395,7 @@ case class GraphBitmapPrintElement(nbounds: Rectangle2D.Float, link: String, ang
         if (angle != 0d) g.rotate(-angle, x, y)
         g.drawImage(image, x, ctx.toUnit(bounds.y).toInt, ctx.toUnit(bounds.width).toInt, y, 0, 0, image.getWidth, image.getHeight, null)
         g.setTransform(oldTrans)
-      } catch {case NonFatal(e) => util.Log.e("when reading image :'" + link.toString + "' " + e.getMessage, e)}
+      } catch {case NonFatal(e) => util.Log.e("when reading image :'" + link + "' " + e.getMessage, e)}
     }
 
   }
@@ -419,7 +418,7 @@ case class GraphTextElement(nbounds: Rectangle2D.Float, text: String, fontName: 
     out.writeFloat(lineSpace)
   }
 
-  def print(g: Graphics2D, ctx: RenderContext): Unit = if (text.length > 0) {
+  def print(g: Graphics2D, ctx: RenderContext): Unit = if (text.nonEmpty) {
     val clip = g.getClip
     val font = ctx.getGraphFont(fontName, ctx.toUnit(nbounds.height) * 25.4f / 72.0f, style)
     //println("Print graphElem :"+nbounds+" h:"+ctx.toUnit(nbounds.height)*25.4f/72.0f)
@@ -453,13 +452,13 @@ case class GraphTextElement(nbounds: Rectangle2D.Float, text: String, fontName: 
       var brxpos = 0f
       for (ix <- normalTexts.indices; ntext = normalTexts(ix)) {
         val nlayout = new TextLayout(ntext, font, g.getFontRenderContext)
-        StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos, wide = false)
+        StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos)
         g.setPaint(color)
         nlayout.draw(g, xpos + brxpos, ypos)
         brxpos += nlayout.getAdvance + 1f
         if (ix < subTexts.size) {
           val slayout = new TextLayout(subTexts(ix), smallFont, g.getFontRenderContext)
-          StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos + 1.5f, wide = false)
+          StringUtils.fillTextLayout(g, layout, xpos + brxpos, ypos + 1.5f)
           g.setPaint(color)
           slayout.draw(g, xpos + brxpos, ypos + 1.5f)
           brxpos += slayout.getAdvance + 0.5f
@@ -491,7 +490,7 @@ case class GraphTextElement(nbounds: Rectangle2D.Float, text: String, fontName: 
 }
 
 
-case class PolyPrintElement(textScale: Float, lineStyle: Byte, color: Color, fillColor: Color, poly: Polygon, hatchStyle: Option[Int],
+case class PolyPrintElement(textScale: Float, lineStyle: Byte, color: Color, hatchColor: Color, poly: Polygon, hatchStyle: Option[Int],
                             paperScale: Boolean, layerScale: Float, startPoint: Point2D.Float, hatchAngle: Double, name: String = "") extends PrintElement(poly.getBounds) {
 
   lazy val vStartPoint = new VectorConstant(startPoint.x, startPoint.y, 0)
@@ -506,7 +505,7 @@ case class PolyPrintElement(textScale: Float, lineStyle: Byte, color: Color, fil
     out.writeFloat(textScale)
     out.writeByte(lineStyle)
     out.writeInt(color.getRGB)
-    out.writeInt(fillColor.getRGB)
+    out.writeInt(hatchColor.getRGB)
     out.writeInt(poly.pathList.size)
     poly.pathList.foreach(_.write(out))
     out.writeBoolean(hatchStyle.isDefined)
@@ -525,15 +524,14 @@ case class PolyPrintElement(textScale: Float, lineStyle: Byte, color: Color, fil
   def print(g: Graphics2D, ctx: RenderContext): Unit = {
     def transform(v: VectorConstant) = new VectorConstant(ctx.toUnit(v.x), ctx.toUnit(v.y), 0)
 
-    val newPoly = poly.toPathTransformed(transform)
-    val theArea = new Area(newPoly)
+    val theArea = PolygonToJavaArea.toPathTransformed(poly,transform)
     /*if (color != Color.white) {*/
       g.setColor(color)
       g.fill(theArea)
     //}
     for (hs <- hatchStyle)
-      ctx.drawHatch(poly, hs, paperScale, g, if (hs != 0) Color.black else fillColor, layerScale, vStartPoint, hatchAngle)
-    if (name.trim.length > 0) {
+      ctx.drawHatch(poly, hs, paperScale, g, hatchColor, layerScale, vStartPoint, hatchAngle)
+    if (name.trim.nonEmpty) {
       val strings = name.split("\n").map(_.trim)
       val mostWideString = strings.maxBy(_.length)
       val midPoint = transform(Polygon.midOfPointList(poly.pathList))

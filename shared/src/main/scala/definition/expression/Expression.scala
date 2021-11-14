@@ -3,11 +3,11 @@
   */
 package definition.expression
 
-import java.io.{DataInput, DataOutput}
-
+import definition.expression.DateConstant.NULL_DATE
 import definition.typ.DataType
 import util.Log
 
+import java.io.{DataInput, DataOutput}
 import scala.util.control.NonFatal
 
 /** base type for all expression classes
@@ -112,10 +112,10 @@ object Expression {
   lazy val NullVECTOR = new VectorConstant(0, 0, 0) with NullConstant
   lazy val NullCURRENCY = new CurrencyConstant(0) with NullConstant
   lazy val NullBLOB = new BlobConstant(new Array[Byte](0)) with NullConstant
-  lazy val NullDATE = DateConstant()
-  lazy val NULLOBJREF = new ObjectReference(0, 0)
-  lazy val NULLUNITNUMBER = new UnitNumber(0, UnitNumber.emptyFraction)
-  lazy val NULLINTLIST=new IntList(Array.empty)
+  lazy val NullDATE = NULL_DATE
+  lazy val NULLOBJREF = new ObjectReference(0, 0) with NullConstant
+  lazy val NULLUNITNUMBER = new UnitNumber(0, UnitNumber.emptyFraction) with NullConstant
+  lazy val NULLINTLIST=new IntList(Array.empty) with NullConstant
 
   def read(file: DataInput): Expression = {
     val code = file.readByte

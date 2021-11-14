@@ -3,10 +3,10 @@
   */
 package definition.expression
 
-import java.io.{DataInput, DataOutput}
-
 import definition.typ.DataType
 import util.StrToInt
+
+import java.io.{DataInput, DataOutput}
 
 
 case class DateConstant(day: Int, month: Int, year: Int) extends Constant {
@@ -90,7 +90,7 @@ case class DateConstant(day: Int, month: Int, year: Int) extends Constant {
 
 object DateConstant {
 
-  lazy val NULL_DATE = DateConstant(0, 0, 0)
+  lazy val NULL_DATE = new DateConstant(0, 0, 0) with NullConstant
 
   val julian1970: Long = julian(1, 1, 1970)
   val nativeNull = 0L

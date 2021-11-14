@@ -15,7 +15,7 @@ lazy val pit = _root_.sbtcrossproject.CrossPlugin.autoImport.crossProject(JSPlat
   settings(
     name:="dbdef",
     version:="0.9-SNAPSHOT",
-    scalaVersion:="2.13.1",
+    scalaVersion:="2.13.4",
     scalacOptions ++= Seq( "-deprecation"),
     scalaJSStage in Global := FastOptStage,
     libraryDependencies:= libraryDependencies.value ++ Seq( "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",

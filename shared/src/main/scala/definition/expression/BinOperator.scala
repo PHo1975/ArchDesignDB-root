@@ -192,11 +192,11 @@ object BinOperator {
     }
     ,
     '^' -> new BinOperator('^', 3) {
-      def getLongValue(left: Long, right: Long): Long = math.pow(left, right).longValue
+      def getLongValue(left: Long, right: Long): Long = math.pow(left.toDouble, right.toDouble).longValue
 
       def getDoubleValue(left: Double, right: Double): Double = math.pow(left, right)
 
-      def getCurrValue(left: Long, right: Long): Long = math.pow(left, right).longValue
+      def getCurrValue(left: Long, right: Long): Long = math.pow(left.toDouble, right.toDouble).longValue
 
       def getUnitValue(left: UnitNumber, right: UnitNumber): UnitNumber = new UnitNumber(math.pow(left.value, right.value), left.unitFraction.pot(right.value))
 

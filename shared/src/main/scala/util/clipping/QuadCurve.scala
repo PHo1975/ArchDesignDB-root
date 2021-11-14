@@ -158,7 +158,7 @@ object QuadCurve2D {
     var x2  = .0
     var y2  = .0
 
-    def this(x1: scala.Double, y1: scala.Double, ctrlx: scala.Double, ctrly: scala.Double, x2: scala.Double, y2: scala.Double) {
+    def this(x1: scala.Double, y1: scala.Double, ctrlx: scala.Double, ctrly: scala.Double, x2: scala.Double, y2: scala.Double)= {
       this()
       this.setCurve(x1, y1, ctrlx, ctrly, x2, y2)
     }

@@ -101,6 +101,7 @@ class UserSetting {
                         "(line " + next.pos.line + ", column " + next.pos.column + "):\n" +
                         err + "\n" + next.pos.longString)
                       emptyMap
+                    case other => throw new IllegalArgumentException("other "+other)
                   }
                 }
   }

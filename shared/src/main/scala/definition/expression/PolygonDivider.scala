@@ -91,8 +91,15 @@ abstract class AbstractTrapez(pl: PointList) extends PartArea(pl) {
   lazy val texts = List((firstTextPos, textAngle, PolygonDivider.formatString.format(firstEdge.length)),
     (secondTextPos, textAngle + PolygonDivider.PIHalf, PolygonDivider.formatString.format(secondEdge.length)),
     (thirdTextPos, textAngle, PolygonDivider.formatString.format(thirdEdge.length)))
-  lazy val calcExpression: Expression = checkSubstExpression(BinaryOperation(PolygonDivider.createDiv2Expression(PolygonDivider.createAddExpression(firstEdge.length, thirdEdge.length)),
-    BinOperator.getOp('*'), UnitNumber(PolygonDivider.roundValue(secondEdge.length), PolygonDivider.meterFraction)))
+  lazy val calcExpression: Expression = {
+    checkSubstExpression(
+    if(Math.abs(PolygonDivider.roundValue(firstEdge.length)-PolygonDivider.roundValue((thirdEdge.length)))<Polygon.treshold)
+      BinaryOperation(UnitNumber(PolygonDivider.roundValue(firstEdge.length),PolygonDivider.meterFraction),BinOperator.getOp('*'),
+      UnitNumber(PolygonDivider.roundValue(secondEdge.length), PolygonDivider.meterFraction))
+    else BinaryOperation(PolygonDivider.createDiv2Expression(PolygonDivider.createAddExpression(firstEdge.length, thirdEdge.length)),
+      BinOperator.getOp('*'), UnitNumber(PolygonDivider.roundValue(secondEdge.length), PolygonDivider.meterFraction))
+    )
+  }
 
   def firstEdge: Edge
 

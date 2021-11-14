@@ -29,7 +29,7 @@ case class CurrencyConstant(n: Long) extends Constant {
 
   def toBoolean: Boolean = n > 0
 
-  override def toUnitNumber = new UnitNumber(n.toDouble / 100d, UnitFraction(UnitNumber.setFactory + new UnitElem(CurrencyConstant.currencySign, 1), UnitNumber.emptySet))
+  override def toUnitNumber = new UnitNumber(n.toDouble / 100d, UnitFraction(UnitNumber.setFactory() + new UnitElem(CurrencyConstant.currencySign, 1), UnitNumber.emptySet))
 
   def write(file: DataOutput): Unit = {
     file.writeByte(DataType.CurrencyTyp.id)

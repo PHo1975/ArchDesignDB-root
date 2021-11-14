@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="copyServer">
+    <output-path>/media/platted/Programmdaten/Scalabase/lib</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/jvm/target/scala-2.13/dbdef_sjs1_2.13-0.9-SNAPSHOT.jar" />
+    </root>
+  </artifact>
+</component>

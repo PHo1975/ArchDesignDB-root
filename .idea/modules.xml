@@ -2,10 +2,18 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dbdef-sources.iml" filepath="$PROJECT_DIR$/.idea/modules/dbdef-sources.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ArchDesignDB-root-sources.iml" filepath="$PROJECT_DIR$/.idea/modules/ArchDesignDB-root-sources.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.js.pitJS.iml" filepath="$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.js.pitJS.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.jvm.pitJVM.iml" filepath="$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.jvm.pitJVM.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.project.wurzel-build.iml" filepath="$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.project.wurzel-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.root.iml" filepath="$PROJECT_DIR$/.idea/modules/ArchDesignDB-root.root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/js.pitJS.iml" filepath="$PROJECT_DIR$/.idea/modules/js.pitJS.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jvm.pitJVM.iml" filepath="$PROJECT_DIR$/.idea/modules/jvm.pitJVM.iml" group="dbdef" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJS.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJS.iml" group="dbdef" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pitJVM.iml" filepath="$PROJECT_DIR$/.idea/modules/pitJVM.iml" group="dbdef" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/project.wurzel-build.iml" filepath="$PROJECT_DIR$/.idea/modules/project.wurzel-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared.ArchDesignDB-root-sources.iml" filepath="$PROJECT_DIR$/.idea/modules/shared.ArchDesignDB-root-sources.iml" group="dbdef" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wurzel-build.iml" filepath="$PROJECT_DIR$/.idea/modules/wurzel-build.iml" />
     </modules>
   </component>

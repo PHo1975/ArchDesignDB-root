@@ -18,7 +18,7 @@ final class Edge(var curve: Curve, var ctag: Int, var etag: Int) {
   private var lastResult = 0
   private var lastLimit = .0
 
-  def this(c: Curve, ctag: Int) {
+  def this(c: Curve, ctag: Int) ={
     this(c, ctag, 0)
   }
 

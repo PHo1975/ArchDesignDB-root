@@ -3,10 +3,9 @@
   */
 package definition.data
 
-import java.io.{DataInput, DataOutput}
-
 import definition.typ.AllClasses
 
+import java.io.{DataInput, DataOutput}
 import scala.collection.immutable.IndexedSeq
 
 
@@ -68,6 +67,7 @@ class InstanceProperties(override val ref: Reference, val propertyFields: Array[
     changeField(field, propertyFields(field).moveInstanceToPos(inst, pos))
 
   def sortChildrenByField(field: Byte, instField: Int, retriever: DataRetriever): InstanceProperties =
+
     changeField(field, propertyFields(field).sortChildren(instField, retriever))
 
   def hasChildren: Boolean = propertyFields.exists(_.propertyList.nonEmpty)

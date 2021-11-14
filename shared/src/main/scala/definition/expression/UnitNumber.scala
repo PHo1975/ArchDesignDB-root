@@ -55,7 +55,7 @@ case class UnitFraction(numerator: SortedSet[UnitElem], denominator: SortedSet[U
         else {newNum -= num; newDen -= den}
       case None =>
     }
-    if (changed) UnitFraction(setFactory ++ newNum, setFactory ++ newDen)
+    if (changed) UnitFraction(setFactory() ++ newNum, setFactory() ++ newDen)
     else this
   }
 
@@ -65,12 +65,12 @@ case class UnitFraction(numerator: SortedSet[UnitElem], denominator: SortedSet[U
       case -1 => result += sec
       case ix => result(ix) = result(ix).delta(sec.exponent)
     }
-    setFactory ++ result
+    setFactory() ++ result
   }
 
   def div(other: UnitFraction): UnitFraction = UnitFraction(addList(numerator, other.denominator), addList(denominator, other.numerator)).trim
 
-  def pot(value: Double): UnitFraction = UnitFraction(setFactory ++ numerator.map(_.mult(value)), setFactory ++ denominator.map(_.mult(value)))
+  def pot(value: Double): UnitFraction = UnitFraction(setFactory() ++ numerator.map(_.mult(value)), setFactory() ++ denominator.map(_.mult(value)))
 
   def sqrt(): UnitFraction ={
     var num=setFactory()

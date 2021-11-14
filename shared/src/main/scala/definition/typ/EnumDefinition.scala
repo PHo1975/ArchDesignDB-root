@@ -3,11 +3,9 @@
   */
 package definition.typ
 
-import java.io.{DataInput, DataOutput}
-
 import definition.data.{DataRetriever, InstanceData}
 
-import scala.jdk.CollectionConverters._
+import java.io.{DataInput, DataOutput}
 
 /**
   *
@@ -19,7 +17,7 @@ class EnumData(val name: String, val id: Int) {
 
 class EnumDefinition(val name: String, val id: Int, val enumValues: collection.Map[String, Int]) {
   lazy val getElem: Map[Int, (String, Int)] = enumValues.map(a => a._2 -> a).toMap
-  lazy val javaVect = new java.util.Vector[EnumData](enumValues.map(a => new EnumData(a._1, a._2)).asJavaCollection)
+  def mapValues: Iterable[EnumData] = enumValues.map(a => new EnumData(a._1, a._2))
 
   override def toString: String = name + "(" + id + ")"
 
